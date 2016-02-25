@@ -7,7 +7,6 @@ Another JSON Schema, simple & flexible & intuitive.
 [![Dependency Status][david-image]][david-url]
 [![License][license-image]][license-url]
 [![Downloads][downloads-image]][downloads-url]
-[![Coverage][coverage-image]][coverage-url]
 
 ### Install
 
@@ -153,7 +152,7 @@ see [test](./test).
 ### Test
 
 ```
-npm test
+npm test (coverage 100%)
 ```
 
 ### License
@@ -170,5 +169,3 @@ MIT
 [license-url]: LICENSE
 [downloads-image]: http://img.shields.io/npm/dm/another-json-schema.svg?style=flat-square
 [downloads-url]: https://npmjs.org/package/another-json-schema
-[coverage-image]: https://img.shields.io/coveralls/nswbmw/jekyll/master.svg?style=flat-square
-[coverage-url]: https://npmjs.org/package/another-json-schema
