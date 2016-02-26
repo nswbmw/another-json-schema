@@ -202,7 +202,35 @@ describe('validate', function () {
         content: 'bench'
       }]
     };
-    assert.deepEqual(postSchema.validate(post1), { valid: true, error: null, result: post1 });
+    assert.deepEqual(postSchema.validate(post1), { valid: true, error: null, result: {
+      _id: 'post11111111111111111111',
+      author: {
+        _id: 'user11111111111111111111',
+        name: 'nswbmw',
+        age: 100,
+        gender: 'male'
+      },
+      content: 'lalala',
+      comments: [{
+        _id: 'comment11111111111111111',
+        user: {
+          _id: 'user11111111111111111111',
+          name: 'user1',
+          age: 100,
+          gender: 'male'
+        },
+        content: 'sofa'
+      }, {
+        _id: 'comment22222222222222222',
+        user: {
+          _id: 'user22222222222222222222',
+          name: 'user2',
+          age: 100,
+          gender: 'female'
+        },
+        content: 'bench'
+      }]
+    } });
 
     var post2 = {
       _id: 'post11111111111111111111',
@@ -235,13 +263,42 @@ describe('validate', function () {
       }]
     };
     assert.deepEqual(postSchema.validate(post2).error.message, '($.comments[].user._id: "wrong_id") ✖ (pattern: /^[0-9a-z]{24}$/)');
-    assert.deepEqual(postSchema.validate(post2), { valid: false,
-      error: 
-       {
-         validator: 'pattern',
-         actual: 'wrong_id',
-         expected: { type: 'string', pattern: /^[0-9a-z]{24}$/ },
-         path: '$.comments[].user._id',
-         schema: 'userSchema' }, result: post2 });
+    assert.deepEqual(postSchema.validate(post2), {
+      valid: false,
+      error: {
+        validator: 'pattern',
+        actual: 'wrong_id',
+        expected: { type: 'string', pattern: /^[0-9a-z]{24}$/ },
+        path: '$.comments[].user._id',
+        schema: 'userSchema' },
+      result: {
+        _id: 'post11111111111111111111',
+        author: { _id: 'user11111111111111111111',
+          name: 'nswbmw',
+          age: 100,
+          gender: 'male'
+        },
+        content: 'lalala',
+        comments: [{
+          _id: 'comment11111111111111111',
+          user: {
+            _id: 'wrong_id',
+            name: 'user1',
+            age: 100,
+            gender: 'male'
+          },
+          content: 'sofa'
+        }, {
+          _id: 'comment22222222222222222',
+          user: {
+            _id: 'user22222222222222222222',
+            name: 'user2',
+            age: 100,
+            gender: 'female'
+          },
+          content: 'bench'
+        }]
+      }
+    });
   });
 });
