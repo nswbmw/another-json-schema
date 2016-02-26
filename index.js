@@ -137,91 +137,91 @@ function _validateObject(obj, opts, ctx) {
     }
   }
 
-  function validateType(value, ctx) {
-    var isObject = 'object' === typeof value;
-    var isArray = Array.isArray(value);
-    var error = null;
-
-    if (ctx._leaf) {
-      if (ctx._parent) {
-        if (isArray && !ctx._array) {
-          error = genError(value, ctx);
-        } else if (ctx._array && !isArray) {
-          error = genError(value, ctx, false, 'array');
-        }
-      }
-    } else {
-      if (ctx._object && !isObject) {
-        error = genError(value, ctx, false, 'object');
-      }
-    }
-
-    return error;
-  }
-
-  function validateLeaf(value, opts, ctx, currentKey, parentNode) {
-    var valid = true;
-    var error = null;
-    // leaf also is array
-    if (Array.isArray(value)) {
-      for (var index in value) {
-        if (!valid) break;
-        valid = validate(value[index], index, value);
-      }
-    } else {
-      validate(value, currentKey, parentNode);
-    }
-    
-    function validate(value, currentKey, parentNode) {
-      var valid = helpers.type.call(ctx, value, ctx._children.type, currentKey, parentNode);
-      if (!valid) {
-        error = genError(value, ctx, 'type');
-        return valid;
-      }
-
-      for (var helper in ctx._children) {
-        if (!valid || 'type' === helper || !helpers[helper] || (opts[helper] !== undefined && !opts[helper])) {
-          continue;
-        }
-        valid = helpers[helper].call(ctx, value, ctx._children[helper], currentKey, parentNode);
-        if (!valid) {
-          error = genError(value, ctx, helper);
-          return valid;
-        }
-      }
-      return valid;
-    }
-
-    return error;
-  }
-
-  function genError(value, ctx, helper, type) {
-    var error = null;
-    if (!type) {
-      if (helper) {
-        error = new Error('(' + ctx._path + ': ' + JSON.stringify(value) + ') ✖ (' + helper + ': ' + ctx._children[helper] + ')');
-        error.validator = helper;
-      } else {
-        error = new Error('(' + ctx._path + ': ' + JSON.stringify(value) + ') ✖ (' + JSON.stringify(ctx._children) + ')');
-        error.validator = 'type';
-      }
-    } else {
-      error = new Error('(' + ctx._path + ': ' + JSON.stringify(value) + ') ✖ (type: ' + type + ')');
-      error.validator = 'type';
-    }
-    
-    error.actual = value;
-    error.expected = ctx._children;
-    error.path = ctx._path;
-    error.schema = ctx._name;
-    return error;
-  }
-
   return {
     valid: !error,
     error: error,
     result: obj
   };
+}
+
+function validateType(value, ctx) {
+  var isObject = 'object' === typeof value;
+  var isArray = Array.isArray(value);
+  var error = null;
+
+  if (ctx._leaf) {
+    if (ctx._parent) {
+      if (isArray && !ctx._array) {
+        error = genError(value, ctx);
+      } else if (ctx._array && !isArray) {
+        error = genError(value, ctx, false, 'array');
+      }
+    }
+  } else {
+    if (ctx._object && !isObject) {
+      error = genError(value, ctx, false, 'object');
+    }
+  }
+
+  return error;
+}
+
+function validateLeaf(value, opts, ctx, currentKey, parentNode) {
+  var valid = true;
+  var error = null;
+  // leaf also is array
+  if (Array.isArray(value)) {
+    for (var index in value) {
+      if (!valid) break;
+      valid = validate(value[index], index, value);
+    }
+  } else {
+    validate(value, currentKey, parentNode);
+  }
+  
+  function validate(value, currentKey, parentNode) {
+    var valid = helpers.type.call(ctx, value, ctx._children.type, currentKey, parentNode);
+    if (!valid) {
+      error = genError(value, ctx, 'type');
+      return valid;
+    }
+
+    for (var helper in ctx._children) {
+      if (!valid || 'type' === helper || !helpers[helper] || (opts[helper] !== undefined && !opts[helper])) {
+        continue;
+      }
+      valid = helpers[helper].call(ctx, value, ctx._children[helper], currentKey, parentNode);
+      if (!valid) {
+        error = genError(value, ctx, helper);
+        return valid;
+      }
+    }
+    return valid;
+  }
+
+  return error;
+}
+
+function genError(value, ctx, helper, type) {
+  var error = null;
+  if (!type) {
+    if (helper) {
+      error = new Error('(' + ctx._path + ': ' + JSON.stringify(value) + ') ✖ (' + helper + ': ' + ctx._children[helper] + ')');
+      error.validator = helper;
+    } else {
+      error = new Error('(' + ctx._path + ': ' + JSON.stringify(value) + ') ✖ (' + JSON.stringify(ctx._children) + ')');
+      error.validator = 'type';
+    }
+  } else {
+    error = new Error('(' + ctx._path + ': ' + JSON.stringify(value) + ') ✖ (type: ' + type + ')');
+    error.validator = 'type';
+  }
+  
+  error.actual = value;
+  error.expected = ctx._children;
+  error.path = ctx._path;
+  error.schema = ctx._name;
+  return error;
 }
 
 module.exports = AJS;
