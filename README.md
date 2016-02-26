@@ -143,7 +143,7 @@ var userSchema = AJS('userSchema', {
 
 ```
 var newSchema = new AJS();
-var userSchema = newSchema.compile({
+var userSchema = newSchema.compile('userSchema', {
   _id: { type: 'string', pattern: /^[0-9a-z]{24}$/ },
   name: { type: 'string', required: true },
   age: { type: 'number', gte: 18 },
@@ -155,23 +155,20 @@ var userSchema = newSchema.compile({
 
 Use the compiled template to validate a json. returns a object:
 
-- valid: {Boolean}
+- valid: {Boolean} wether a valid json
 - error: {Error|null}
+  - message: error message, eg: `($.comments[].user._id: "wrong_id") ✖ (pattern: /^[0-9a-z]{24}$/)`
+  - validator: validator name, eg: `pattern`,
+  - actual: actual value, eg: `wrong_id`,
+  - expected: expected schema, eg: `{ type: 'string', pattern: /^[0-9a-z]{24}$/ }`,
+  - path: path in object, eg: `$.comments[].user._id`,
+  - schema: schema name, eg: `userSchema`
 - result: {Any}
 
 opts:
 
 - additionalProperties: {Boolean} if true, retain the original field. default `false`
 - gt, gte, lt, lte ...: {Boolean} if false, will not execute this build-in validator.
-
-error:
-
-- message: error message, eg: `($.comments[].user._id: "wrong_id") ✖ (pattern: /^[0-9a-z]{24}$/)`
-- validator: validator name, eg: `pattern`,
-- actual: actual value, eg: `wrong_id`,
-- expected: expected schema, eg: `{ type: 'string', pattern: /^[0-9a-z]{24}$/ }`,
-- path: path in object, eg: `$.comments[].user._id`,
-- schema: schema name, eg: `userSchema`
 
 ### More examples
 
