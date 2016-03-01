@@ -206,7 +206,12 @@ function genError(value, ctx, helper, type) {
   var error = null;
   if (!type) {
     if (helper) {
-      error = new Error('(' + ctx._path + ': ' + JSON.stringify(value) + ') ✖ (' + helper + ': ' + ctx._children[helper] + ')');
+      var helperEntry = ctx._children[helper];
+      if ('function' === typeof helperEntry) {
+        error = new Error('(' + ctx._path + ': ' + JSON.stringify(value) + ') ✖ (' + helper + ': ' + helperEntry.name + ')');
+      } else {
+        error = new Error('(' + ctx._path + ': ' + JSON.stringify(value) + ') ✖ (' + helper + ': ' + helperEntry + ')');
+      }
       error.validator = helper;
     } else {
       error = new Error('(' + ctx._path + ': ' + JSON.stringify(value) + ') ✖ (' + JSON.stringify(ctx._children) + ')');
