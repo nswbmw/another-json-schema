@@ -151,7 +151,7 @@ var userSchema = newSchema.compile('userSchema', {
 });
 ```
 
-#### schema.validate(compiledSchema, [opts])
+#### compiledSchema.validate(data, [opts])
 
 Use the compiled template to validate a json. returns a object:
 
