@@ -11,13 +11,13 @@ Another JSON Schema, simple & flexible & intuitive.
 ### Install
 
 ```
-npm i anothor-json-schema --save
+npm i another-json-schema --save
 ```
 
 ### Usage
 
 ```
-var AJS = require('anothor-json-schema');
+var AJS = require('another-json-schema');
 
 var userSchema = AJS('userSchema', {
   _id: { type: 'string', pattern: /^[0-9a-z]{24}$/ },
