@@ -3,7 +3,7 @@
 exports.type = function (actual, expected, key, parentNode) {
   if (expected === 'any') return true;
   if ('function' === typeof expected) {
-    return expected.call(this, actual);
+    return expected.apply(this, arguments);
   }
   return expected === Object.prototype.toString.call(actual).match(/^\[object\s(.*)\]$/)[1].toLowerCase();
 };
