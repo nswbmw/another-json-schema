@@ -208,7 +208,7 @@ function genError(value, ctx, helper, type) {
     if (helper) {
       var helperEntry = ctx._children[helper];
       if ('function' === typeof helperEntry) {
-        error = new Error('(' + ctx._path + ': ' + JSON.stringify(value) + ') ✖ (' + helper + ': ' + helperEntry.name + ')');
+        error = new Error('(' + ctx._path + ': ' + JSON.stringify(value) + ') ✖ (' + helper + ': ' + (helperEntry.name || 'Function') + ')');
       } else {
         error = new Error('(' + ctx._path + ': ' + JSON.stringify(value) + ') ✖ (' + helper + ': ' + helperEntry + ')');
       }
