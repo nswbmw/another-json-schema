@@ -230,6 +230,7 @@ function genError(value, ctx, helper, type) {
 }
 
 module.exports = AJS;
+module.exports.helpers = helpersFuncs;
 
 Object.keys(helpersFuncs).forEach(function (helper) {
   AJS.register(helper, helpersFuncs[helper]);
