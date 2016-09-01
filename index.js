@@ -13,11 +13,9 @@ function AJS(name, schema) {
   }
 }
 
-var helpers = {};
-
 AJS.register = function register(name, fn) {
   if (!name || !fn) throw new TypeError('Missing name or fn');
-  helpers[name] = fn;
+  helpersFuncs[name] = fn;
 };
 
 AJS.prototype.compile = function compile(name, schema) {
@@ -180,17 +178,17 @@ function validateLeaf(value, opts, ctx, currentKey, parentNode) {
   }
   
   function validate(value, currentKey, parentNode) {
-    var valid = helpers.type.call(ctx, value, ctx._children.type, currentKey, parentNode);
+    var valid = helpersFuncs.type.call(ctx, value, ctx._children.type, currentKey, parentNode);
     if (!valid) {
       error = genError(value, ctx, 'type');
       return valid;
     }
 
     for (var helper in ctx._children) {
-      if (!valid || 'type' === helper || !helpers[helper] || (opts[helper] !== undefined && !opts[helper])) {
+      if (!valid || 'type' === helper || !helpersFuncs[helper] || (opts[helper] !== undefined && !opts[helper])) {
         continue;
       }
-      valid = helpers[helper].call(ctx, value, ctx._children[helper], currentKey, parentNode);
+      valid = helpersFuncs[helper].call(ctx, value, ctx._children[helper], currentKey, parentNode);
       if (!valid) {
         error = genError(value, ctx, helper);
         return valid;
@@ -231,7 +229,3 @@ function genError(value, ctx, helper, type) {
 
 module.exports = AJS;
 module.exports.helpers = helpersFuncs;
-
-Object.keys(helpersFuncs).forEach(function (helper) {
-  AJS.register(helper, helpersFuncs[helper]);
-});
