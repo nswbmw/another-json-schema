@@ -36,6 +36,9 @@ describe('helper', function () {
          path: '$' },
       result: 0
     });
+
+    //gt18: false
+    assert.deepEqual(schema.validate(0, { gt18: false }), { valid: true, error: null, result: 0 });
   });
 
   it('.type', function () {
@@ -57,9 +60,13 @@ describe('helper', function () {
       result: '0'
     });
 
-    var checkIsObject = function (actual) {
-      return typeof actual === 'object';
-    };
+    function checkIsObject (actual) {
+      if (typeof actual === 'object') {
+        return actual;
+      } else {
+        throw 'Not object!';
+      }
+    }
     var schema = AJS('typeSchema', { type: checkIsObject });
 
     assert.deepEqual(schema.validate([]), { valid: true, error: null, result: [] });
@@ -71,7 +78,32 @@ describe('helper', function () {
          actual: 0,
          expected: { type: checkIsObject },
          path: '$',
-         schema: 'typeSchema' },
+         schema: 'typeSchema',
+         originError: 'Not object!' },
+      result: 0
+    });
+
+    function toUpperCase(value) {
+      if ('string' !== typeof value) {
+        throw 'name is not String';
+      }
+      return value.toUpperCase();
+    }
+    var schema = AJS('typeSchema', {
+      name: { type: toUpperCase }
+    });
+
+    assert.deepEqual(schema._children.name.validate('a'), { valid: true, error: null, result: 'A' });
+    assert.deepEqual(schema._children.name.validate(0), {
+      valid: false,
+      error: 
+       {
+         validator: 'type',
+         actual: 0,
+         expected: { type: toUpperCase },
+         path: '$.name',
+         schema: 'typeSchema',
+         originError: 'name is not String' },
       result: 0
     });
   });
@@ -167,21 +199,24 @@ describe('helper', function () {
     });
   });
 
-  it('.required', function () {
-    var schema = AJS('requiredSchema', { type: 'string', required: true });
+  it('.required custom', function () {
+    function required(value) {
+      return !!value;
+    }
+    var schema = AJS('requiredSchema', { type: 'string', required: required });
     assert.deepEqual(schema.validate('aaa'), { valid: true, error: null, result: 'aaa' });
     assert.deepEqual(schema.validate(''), { valid: false,
       error: 
        {
          validator: 'required',
          actual: '',
-         expected: { type: 'string', required: true },
+         expected: { type: 'string', required: required },
          path: '$',
          schema: 'requiredSchema' },
       result: ''
     });
 
-    var schema = AJS('requiredSchema', { type: 'string', required: 0 });
+    var schema = AJS('requiredSchema', { type: 'string', required: 'will be ignore' });
     assert.deepEqual(schema.validate('aaa'), { valid: true, error: null, result: 'aaa' });
     assert.deepEqual(schema.validate(''), { valid: true, error: null, result: '' });
   });
@@ -201,7 +236,7 @@ describe('helper', function () {
     });
   });
 
-  it('.validate', function () {
+  it('.validate custom', function () {
     var validate = function (actual) {
       return actual === 'aaa';
     };
@@ -217,14 +252,5 @@ describe('helper', function () {
          schema: 'validateSchema' },
       result: 'bbb'
     });
-  });
-
-  it('.validate false', function () {
-    var validate = function (actual) {
-      return actual === 'aaa';
-    };
-    var schema = AJS('validateSchema', { type: 'string', validate: validate });
-    assert.deepEqual(schema.validate('aaa'), { valid: true, error: null, result: 'aaa' });
-    assert.deepEqual(schema.validate('bbb', { validate: false }), { valid: true, error: null, result: 'bbb' });
   });
 });

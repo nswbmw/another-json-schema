@@ -1,60 +1,54 @@
 'use strict';
 
-exports.type = function (actual, expected, key, parentNode) {
-  if (expected === 'any') return true;
+var toString = Object.prototype.toString;
+
+//return value or throw error
+exports.type = function (actual, expected) {
+  if (expected === 'any') return actual;
   if ('function' === typeof expected) {
-    return expected.apply(this, arguments);
+    return expected.call(this, actual);
   }
-  return expected === Object.prototype.toString.call(actual).match(/^\[object\s(.*)\]$/)[1].toLowerCase();
+  if (expected === toString.call(actual).match(/^\[object\s(.*)\]$/)[1].toLowerCase()) {
+    return actual;
+  } else {
+    throw null;
+  }
 };
 
+//return true|false
 /*
  * Number
  */
-exports.gt = function (actual, expected, key, parentNode) {
+exports.gt = function (actual, expected) {
   return actual > expected;
 };
 
-exports.gte = function (actual, expected, key, parentNode) {
+exports.gte = function (actual, expected) {
   return actual >= expected;
 };
 
-exports.lt = function (actual, expected, key, parentNode) {
+exports.lt = function (actual, expected) {
   return actual < expected;
 };
 
-exports.lte = function (actual, expected, key, parentNode) {
+exports.lte = function (actual, expected) {
   return actual <= expected;
 };
 
-exports.range = function (actual, expected, key, parentNode) {
+exports.range = function (actual, expected) {
   return (actual >= expected[0]) && (actual <= expected[1]);
 };
 
 /*
  * Array
  */
-exports.enum = function (actual, expected, key, parentNode) {
+exports.enum = function (actual, expected) {
   return expected.indexOf(actual) !== -1;
 };
 
 /*
  * RegExp
  */
-exports.pattern = function (actual, expected, key, parentNode) {
+exports.pattern = function (actual, expected) {
   return expected.test(actual);
-};
-
-/*
- *Function
- */
-exports.validate = function (actual, expected, key, parentNode) {
-  return expected(actual, key, parentNode);
-};
-
-/*
- * other
- */
-exports.required = function (actual, expected, key, parentNode) {
-  return expected ? !!actual : true;
 };

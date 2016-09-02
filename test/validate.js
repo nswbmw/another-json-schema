@@ -93,7 +93,15 @@ describe('validate', function () {
       _id: { type: 'string', pattern: /^[0-9a-z]{24}$/ },
       nicknames: [{ type: 'string' }],
     });
-
+    assert.deepEqual(userSchema._children._id.validate('1'), {
+      valid: false,
+      error: {
+        validator: 'pattern',
+        actual: '1',
+        expected: { type: 'string', pattern: /^[0-9a-z]{24}$/ },
+        path: '$._id',
+        schema: 'userSchema' },
+      result: '1' });
     assert.deepEqual(userSchema.validate({
       _id: '111111111111111111111111',
       nicknames: ['nswbmw', 'xiaoxingxing'],

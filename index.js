@@ -104,22 +104,22 @@ function _validateObject(obj, opts, ctx) {
   var additionalProperties = opts.additionalProperties;
   var error = null;
 
-  iterator(obj, opts, ctx);
-  function iterator(children, opts, ctx, currentKey, parentNode) {
-    if (error) return;
+  try {
+    obj = iterator(obj, opts, ctx);
+  } catch (e) {
+    error = e;
+  }
+  function iterator(children, opts, ctx) {
     var isObject = 'object' === typeof children;
     var isArray = Array.isArray(children);
-    parentNode = parentNode || {};
 
-    error = validateType(children, ctx);
-    if (error) return;
-    
+    validateType(children, ctx);
     if (ctx._leaf || isBuffer(children) || !isObject) {
-      error = validateLeaf(children, opts, ctx, currentKey, parentNode);
+      return validateLeaf(children, opts, ctx);
     } else {
       if (isArray) {
-        children.forEach(function (item, index) {
-          iterator(item, opts, ctx, index, children);
+        return children.map(function (item) {
+          return iterator(item, opts, ctx);
         });
       } else {
         for (var key in children) {
@@ -128,9 +128,10 @@ function _validateObject(obj, opts, ctx) {
               delete children[key];
             }
           } else {
-            iterator(children[key], opts, ctx._children[key], key, children);
+            children[key] = iterator(children[key], opts, ctx._children[key]);
           }
         }
+        return children;
       }
     }
   }
@@ -145,62 +146,62 @@ function _validateObject(obj, opts, ctx) {
 function validateType(value, ctx) {
   var isObject = 'object' === typeof value;
   var isArray = Array.isArray(value);
-  var error = null;
 
   if (ctx._leaf) {
     if (ctx._parent) {
       if (isArray && !ctx._array) {
-        error = genError(value, ctx);
+        throwError(value, ctx);
       } else if (ctx._array && !isArray) {
-        error = genError(value, ctx, false, 'array');
+        throwError(value, ctx, null, 'array');
       }
     }
   } else {
     if (ctx._object && !isObject) {
-      error = genError(value, ctx, false, 'object');
+      throwError(value, ctx, null, 'object');
     }
   }
-
-  return error;
 }
 
-function validateLeaf(value, opts, ctx, currentKey, parentNode) {
-  var valid = true;
-  var error = null;
+function validateLeaf(value, opts, ctx) {
   // leaf also is array
   if (Array.isArray(value)) {
-    for (var index in value) {
-      if (!valid) break;
-      valid = validate(value[index], index, value);
-    }
+    return value.map(function (item) {
+      return validate(item);
+    });
   } else {
-    validate(value, currentKey, parentNode);
+    return validate(value);
   }
-  
-  function validate(value, currentKey, parentNode) {
-    var valid = helpersFuncs.type.call(ctx, value, ctx._children.type, currentKey, parentNode);
-    if (!valid) {
-      error = genError(value, ctx, 'type');
-      return valid;
+
+  function validate(value) {
+    var valid = true;//default passed
+    //check type first, can modify `value`
+    try {
+      value = helpersFuncs.type.call(ctx, value, ctx._children.type);
+    } catch (e) {
+      throwError(value, ctx, 'type', null, e);
     }
 
+    //check others, can not modify `value`
     for (var helper in ctx._children) {
-      if (!valid || 'type' === helper || !helpersFuncs[helper] || (opts[helper] !== undefined && !opts[helper])) {
+      if ('type' === helper || (opts[helper] != null && !opts[helper])) {
         continue;
       }
-      valid = helpersFuncs[helper].call(ctx, value, ctx._children[helper], currentKey, parentNode);
+      if ('function' === typeof ctx._children[helper]) {
+        //custom function validator
+        valid = ctx._children[helper].call(ctx, value);
+      } else if (helpersFuncs[helper]) {
+        //registered helpers
+        valid = helpersFuncs[helper].call(ctx, value, ctx._children[helper]);
+      }
       if (!valid) {
-        error = genError(value, ctx, helper);
-        return valid;
+        throwError(value, ctx, helper);
       }
     }
-    return valid;
+    return value;
   }
-
-  return error;
 }
 
-function genError(value, ctx, helper, type) {
+function throwError(value, ctx, helper, type, originError) {
   var error = null;
   if (!type) {
     if (helper) {
@@ -224,7 +225,11 @@ function genError(value, ctx, helper, type) {
   error.expected = ctx._children;
   error.path = ctx._path;
   error.schema = ctx._name;
-  return error;
+
+  if (originError) {
+    error.originError = originError;
+  }
+  throw error;
 }
 
 module.exports = AJS;
