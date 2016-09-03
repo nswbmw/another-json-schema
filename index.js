@@ -113,7 +113,9 @@ function _validateObject(obj, opts, ctx) {
     var isObject = 'object' === typeof children;
     var isArray = Array.isArray(children);
 
-    validateType(children, ctx);
+    if (!opts.ignoreNodeType) {
+      validateType(children, ctx);
+    }
     if (ctx._leaf || isBuffer(children) || !isObject) {
       return validateLeaf(children, opts, ctx);
     } else {
@@ -148,12 +150,13 @@ function validateType(value, ctx) {
   var isArray = Array.isArray(value);
 
   if (ctx._leaf) {
-    if (ctx._parent) {
-      if (isArray && !ctx._array) {
-        throwError(value, ctx);
-      } else if (ctx._array && !isArray) {
-        throwError(value, ctx, null, 'array');
-      }
+    if ('function' === typeof ctx._children.type) {
+      return;
+    }
+    if (isArray && !ctx._array) {
+      throwError(value, ctx);
+    } else if (ctx._array && !isArray) {
+      throwError(value, ctx, null, 'array');
     }
   } else {
     if (ctx._object && !isObject) {
@@ -220,7 +223,7 @@ function throwError(value, ctx, helper, type, originError) {
     error = new Error('(' + ctx._path + ': ' + JSON.stringify(value) + ') ✖ (type: ' + type + ')');
     error.validator = 'type';
   }
-  
+
   error.actual = value;
   error.expected = ctx._children;
   error.path = ctx._path;

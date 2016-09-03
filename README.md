@@ -220,6 +220,7 @@ Use the compiled template to validate a json. returns a object:
 opts:
 
 - additionalProperties: {Boolean} if true, retain the original field. default `false`
+- ignoreNodeType: {Boolean} if true, ignore check node type, like: `[]`. default: `false`
 - gt, gte, lt, lte ...: {Boolean} if false, will not execute this validator.
 
 ### Buit-in validator

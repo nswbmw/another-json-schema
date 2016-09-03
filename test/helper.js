@@ -27,7 +27,7 @@ describe('helper', function () {
     });
     assert.deepEqual(schema.validate(19), { valid: true, error: null, result: 19 });
     assert.deepEqual(schema.validate(0), { valid: false,
-      error: 
+      error:
        {
          schema: 'adultSchema',
          validator: 'gt18',
@@ -50,7 +50,7 @@ describe('helper', function () {
     var schema = AJS('typeSchema', { type: 'number' });
     assert.deepEqual(schema.validate(0), { valid: true, error: null, result: 0 });
     assert.deepEqual(schema.validate('0'), { valid: false,
-      error: 
+      error:
        {
          validator: 'type',
          actual: '0',
@@ -68,11 +68,10 @@ describe('helper', function () {
       }
     }
     var schema = AJS('typeSchema', { type: checkIsObject });
-
     assert.deepEqual(schema.validate([]), { valid: true, error: null, result: [] });
     assert.deepEqual(schema.validate({}), { valid: true, error: null, result: {} });
     assert.deepEqual(schema.validate(0), { valid: false,
-      error: 
+      error:
        {
          validator: 'type',
          actual: 0,
@@ -96,7 +95,7 @@ describe('helper', function () {
     assert.deepEqual(schema._children.name.validate('a'), { valid: true, error: null, result: 'A' });
     assert.deepEqual(schema._children.name.validate(0), {
       valid: false,
-      error: 
+      error:
        {
          validator: 'type',
          actual: 0,
@@ -106,13 +105,39 @@ describe('helper', function () {
          originError: 'name is not String' },
       result: 0
     });
+
+    var schema = AJS('typeSchema', [{ type: 'string' }]);
+    assert.deepEqual(schema.validate('a'), {
+      valid: false,
+      error: {
+        validator: 'type',
+        actual: 'a',
+        expected: { type: 'string' },
+        path: '$[]',
+        schema: 'typeSchema'
+      },
+      result: 'a'
+    });
+
+    var schema = AJS('typeSchema', { type: 'string' });
+    assert.deepEqual(schema.validate(['a']), {
+      valid: false,
+      error: {
+        validator: 'type',
+        actual: [ 'a' ],
+        expected: { type: 'string' },
+        path: '$',
+        schema: 'typeSchema'
+      },
+      result: [ 'a' ]
+    });
   });
 
   it('.gt', function () {
     var schema = AJS('numberSchema', { type: 'number', gt: 0 });
     assert.deepEqual(schema.validate(1), { valid: true, error: null, result: 1 });
     assert.deepEqual(schema.validate(0), { valid: false,
-      error: 
+      error:
        {
          schema: 'numberSchema',
          validator: 'gt',
@@ -127,7 +152,7 @@ describe('helper', function () {
     var schema = AJS('numberSchema', { type: 'number', gte: 0 });
     assert.deepEqual(schema.validate(1), { valid: true, error: null, result: 1 });
     assert.deepEqual(schema.validate(-1), { valid: false,
-      error: 
+      error:
        {
          schema: 'numberSchema',
          validator: 'gte',
@@ -142,7 +167,7 @@ describe('helper', function () {
     var schema = AJS('numberSchema', { type: 'number', lt: 0 });
     assert.deepEqual(schema.validate(-1), { valid: true, error: null, result: -1 });
     assert.deepEqual(schema.validate(0), { valid: false,
-      error: 
+      error:
        {
          schema: 'numberSchema',
          validator: 'lt',
@@ -157,7 +182,7 @@ describe('helper', function () {
     var schema = AJS('numberSchema', { type: 'number', lte: 0 });
     assert.deepEqual(schema.validate(0), { valid: true, error: null, result: 0 });
     assert.deepEqual(schema.validate(1), { valid: false,
-      error: 
+      error:
        {
          schema: 'numberSchema',
          validator: 'lte',
@@ -173,7 +198,7 @@ describe('helper', function () {
     assert.deepEqual(schema.validate(0), { valid: true, error: null, result: 0 });
     assert.deepEqual(schema.validate(10), { valid: true, error: null, result: 10 });
     assert.deepEqual(schema.validate(-1), { valid: false,
-      error: 
+      error:
        {
          schema: 'numberSchema',
          validator: 'range',
@@ -188,7 +213,7 @@ describe('helper', function () {
     var schema = AJS('enumSchema', { type: 'string', enum: ['aaa', 'bbb'] });
     assert.deepEqual(schema.validate('aaa'), { valid: true, error: null, result: 'aaa' });
     assert.deepEqual(schema.validate('ccc'), { valid: false,
-      error: 
+      error:
        {
          validator: 'enum',
          actual: 'ccc',
@@ -206,7 +231,7 @@ describe('helper', function () {
     var schema = AJS('requiredSchema', { type: 'string', required: required });
     assert.deepEqual(schema.validate('aaa'), { valid: true, error: null, result: 'aaa' });
     assert.deepEqual(schema.validate(''), { valid: false,
-      error: 
+      error:
        {
          validator: 'required',
          actual: '',
@@ -225,7 +250,7 @@ describe('helper', function () {
     var schema = AJS('patternSchema', { type: 'string', pattern: /^a/ });
     assert.deepEqual(schema.validate('aaa'), { valid: true, error: null, result: 'aaa' });
     assert.deepEqual(schema.validate('bbb'), { valid: false,
-      error: 
+      error:
        {
          validator: 'pattern',
          actual: 'bbb',
@@ -243,7 +268,7 @@ describe('helper', function () {
     var schema = AJS('validateSchema', { type: 'string', validate: validate });
     assert.deepEqual(schema.validate('aaa'), { valid: true, error: null, result: 'aaa' });
     assert.deepEqual(schema.validate('bbb'), { valid: false,
-      error: 
+      error:
        {
          validator: 'validate',
          actual: 'bbb',

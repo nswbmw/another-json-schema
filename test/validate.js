@@ -20,14 +20,14 @@ describe('validate', function () {
       age: { type: 'number', gte: 18 },
       gender: { type: 'string', enum: ['male', 'female'] }
     });
-    
+
     assert.deepEqual(userSchema.validate({
       _id: '111111111111111111111111',
       name: 'nswbmw',
       age: 100,
       gender: 'male',
       pet: 'cat'
-    }), { valid: true, error: null, result: 
+    }), { valid: true, error: null, result:
        { _id: '111111111111111111111111',
          name: 'nswbmw',
          age: 100,
@@ -40,7 +40,7 @@ describe('validate', function () {
       age: 100,
       gender: 'male',
       pet: 'cat'
-    }, { additionalProperties: true }), { valid: true, error: null, result: 
+    }, { additionalProperties: true }), { valid: true, error: null, result:
        { _id: '111111111111111111111111',
          name: 'nswbmw',
          age: 100,
@@ -53,20 +53,21 @@ describe('validate', function () {
     var schema = AJS({ type: 'string' });
     assert.deepEqual(schema.validate('1'), { valid: true, error: null, result: '1' });
     assert.deepEqual(schema.validate(1), { valid: false,
-      error: 
+      error:
        {
          validator: 'type',
          actual: 1,
          expected: { type: 'string' },
          path: '$',
          schema: undefined },
-      result: 1 
+      result: 1
     });
 
     var schema = AJS([{ type: 'string' }]);
+    assert.deepEqual(schema.validate('1', { ignoreNodeType: true }), { valid: true, error: null, result: '1' });
     assert.deepEqual(schema.validate(['1']), { valid: true, error: null, result: ['1'] });
     assert.deepEqual(schema.validate([2, '1']), { valid: false,
-      error: 
+      error:
        {
          validator: 'type',
          actual: 2,
@@ -79,7 +80,7 @@ describe('validate', function () {
     var schema = AJS([AJS({ type: 'string' })]);
     assert.deepEqual(schema.validate(['1']), { valid: true, error: null, result: ['1'] });
     assert.deepEqual(schema.validate(['1', 2]), { valid: false,
-      error: 
+      error:
        {
          validator: 'type',
          actual: 2,
@@ -108,9 +109,9 @@ describe('validate', function () {
       other: 'blabla'
     }), { valid: true,
       error: null,
-      result: 
+      result:
        { _id: '111111111111111111111111',
-         nicknames: [ 'nswbmw', 'xiaoxingxing' ] } 
+         nicknames: [ 'nswbmw', 'xiaoxingxing' ] }
     });
 
     var userSchema = AJS('userSchema', {
@@ -126,7 +127,7 @@ describe('validate', function () {
       _id: '111111111111111111111111',
       nicknames: 'nswbmw'
     }), { valid: false,
-      error: 
+      error:
        {
          validator: 'type',
          actual: 'nswbmw',
@@ -151,7 +152,7 @@ describe('validate', function () {
       _id: '111111111111111111111111',
       content: ['haha', 'hehe']
     }), { valid: false,
-      error: 
+      error:
        {
          validator: 'type',
          actual: [ 'haha', 'hehe' ],
