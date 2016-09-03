@@ -223,7 +223,7 @@ opts:
 - ignoreNodeType: {Boolean} if true, ignore check node type, like: `[]`. default: `false`
 - gt, gte, lt, lte ...: {Boolean} if false, will not execute this validator.
 
-### Buit-in validator
+### Built-in validators
 
 - type
 - gt
