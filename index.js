@@ -210,17 +210,17 @@ function throwError(value, ctx, helper, type, originError) {
     if (helper) {
       var helperEntry = ctx._children[helper];
       if ('function' === typeof helperEntry) {
-        error = new Error('(' + ctx._path + ': ' + JSON.stringify(value) + ') ✖ (' + helper + ': ' + (helperEntry.name || 'Function') + ')');
+        error = new TypeError('(' + ctx._path + ': ' + JSON.stringify(value) + ') ✖ (' + helper + ': ' + (helperEntry.name || 'Function') + ')');
       } else {
-        error = new Error('(' + ctx._path + ': ' + JSON.stringify(value) + ') ✖ (' + helper + ': ' + helperEntry + ')');
+        error = new TypeError('(' + ctx._path + ': ' + JSON.stringify(value) + ') ✖ (' + helper + ': ' + helperEntry + ')');
       }
       error.validator = helper;
     } else {
-      error = new Error('(' + ctx._path + ': ' + JSON.stringify(value) + ') ✖ (' + JSON.stringify(ctx._children) + ')');
+      error = new TypeError('(' + ctx._path + ': ' + JSON.stringify(value) + ') ✖ (' + JSON.stringify(ctx._children) + ')');
       error.validator = 'type';
     }
   } else {
-    error = new Error('(' + ctx._path + ': ' + JSON.stringify(value) + ') ✖ (type: ' + type + ')');
+    error = new TypeError('(' + ctx._path + ': ' + JSON.stringify(value) + ') ✖ (type: ' + type + ')');
     error.validator = 'type';
   }
 
