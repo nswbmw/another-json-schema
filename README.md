@@ -18,7 +18,7 @@ npm i another-json-schema --save
 
 simple:
 
-```
+```JavaScript
 var AJS = require('another-json-schema');
 
 var userSchema = AJS('userSchema', {
@@ -47,7 +47,7 @@ console.log(userSchema.validate(user));
 
 complex:
 
-```
+```JavaScript
 var AJS = require('another-json-schema');
 
 var userSchema = AJS('userSchema', {
@@ -116,7 +116,7 @@ console.log(postSchema.validate(post));
 
 custom validate function(like: ObjectId):
 
-```
+```JavaScript
 var validator = require('validator');
 var toObjectId = require('mongodb').ObjectId;
 var AJS = require('another-json-schema');
@@ -173,7 +173,7 @@ Constructor.
 
 Register a validator. eg:
 
-```
+```JavaScript
 AJS.register('gt', function (actual, expected, key, parentNode) {
   return actual > expected;
 });
@@ -183,7 +183,7 @@ AJS.register('gt', function (actual, expected, key, parentNode) {
 
 Compile a schema. The following two ways are the same:
 
-```
+```JavaScript
 var userSchema = AJS('userSchema', {
   _id: { type: 'string', pattern: /^[0-9a-z]{24}$/ },
   name: { type: 'string' },
@@ -192,7 +192,7 @@ var userSchema = AJS('userSchema', {
 });
 ```
 
-```
+```JavaScript
 var newSchema = new AJS();
 var userSchema = newSchema.compile('userSchema', {
   _id: { type: 'string', pattern: /^[0-9a-z]{24}$/ },
