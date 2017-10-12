@@ -1,6 +1,6 @@
 {
   "name": "another-json-schema",
-  "version": "2.1.1",
+  "version": "2.1.2",
   "description": "Another JSON Schema, simple & flexible & intuitive.",
   "main": "index.js",
   "scripts": {
@@ -17,13 +17,17 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "is-buffer": "^1.1.2"
   },
   "repository": {
     "type": "git",
     "url": "https://github.com/nswbmw/another-json-schema"
   },
   "devDependencies": {
+    "eslint-config-standard": "10.2.1",
+    "eslint-plugin-import": "2.7.0",
+    "eslint-plugin-node": "5.2.0",
+    "eslint-plugin-promise": "3.5.0",
+    "eslint-plugin-standard": "3.0.1",
     "istanbul": "^0.4.2",
     "mocha": "^2.4.5"
   }
