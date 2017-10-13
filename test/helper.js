@@ -1,5 +1,7 @@
 const AJS = require('..')
 const assert = require('assert')
+const validator = require('validator')
+const toObjectId = require('mongodb').ObjectId
 
 describe('helper', function () {
   it('error', function () {
@@ -35,7 +37,7 @@ describe('helper', function () {
       result: 0
     })
 
-    //gt18: false
+    // gt18: false
     assert.deepEqual(schema.validate(0, { gt18: false }), { valid: true, error: null, result: 0 })
   })
 
@@ -80,24 +82,23 @@ describe('helper', function () {
       result: 0
     })
 
-    function toUpperCase (value) {
+    function checkTypeAndToUpperCase (value, key, parent) {
       if (typeof value !== 'string') {
         throw 'name is not String'
       }
-      return value.toUpperCase()
+      return true
     }
     schema = AJS('typeSchema', {
-      name: { type: toUpperCase }
+      name: { type: checkTypeAndToUpperCase }
     })
 
-    assert.deepEqual(schema._children.name.validate('a'), { valid: true, error: null, result: 'A' })
     assert.deepEqual(schema._children.name.validate(0), {
       valid: false,
       error:
        {
          validator: 'type',
          actual: 0,
-         expected: { type: toUpperCase },
+         expected: { type: checkTypeAndToUpperCase },
          path: '$.name',
          schema: 'typeSchema',
          originError: 'name is not String' },
@@ -110,7 +111,7 @@ describe('helper', function () {
       error: {
         validator: 'type',
         actual: 'a',
-        expected: { type: 'string' },
+        expected: [{ type: 'string' }],
         path: '$[]',
         schema: 'typeSchema'
       },
@@ -222,28 +223,6 @@ describe('helper', function () {
     })
   })
 
-  it('.required custom', function () {
-    function required (value) {
-      return !!value
-    }
-    let schema = AJS('requiredSchema', { type: 'string', required: required })
-    assert.deepEqual(schema.validate('aaa'), { valid: true, error: null, result: 'aaa' })
-    assert.deepEqual(schema.validate(''), { valid: false,
-      error:
-       {
-         validator: 'required',
-         actual: '',
-         expected: { type: 'string', required: required },
-         path: '$',
-         schema: 'requiredSchema' },
-      result: ''
-    })
-
-    schema = AJS('requiredSchema', { type: 'string', required: 'will be ignore' })
-    assert.deepEqual(schema.validate('aaa'), { valid: true, error: null, result: 'aaa' })
-    assert.deepEqual(schema.validate(''), { valid: true, error: null, result: '' })
-  })
-
   it('.pattern', function () {
     const schema = AJS('patternSchema', { type: 'string', pattern: /^a/ })
     assert.deepEqual(schema.validate('aaa'), { valid: true, error: null, result: 'aaa' })
@@ -259,21 +238,112 @@ describe('helper', function () {
     })
   })
 
-  it('.validate custom', function () {
-    const validate = function (actual) {
+  it('.default', function () {
+    let schema = AJS('requiredSchema', {
+      name: { type: 'string' },
+      age: { type: 'number', default: 18 }
+    })
+    assert.deepEqual(schema.validate({
+      name: 'nswbmw',
+      age: 26
+    }), { valid: true, error: null, result: { name: 'nswbmw', age: 26 } })
+    assert.deepEqual(schema.validate({
+      name: 'nswbmw'
+    }), { valid: true, error: null, result: { name: 'nswbmw', age: 18 } })
+
+    assert.deepEqual(schema.validate({
+      name: 'nswbmw'
+    }, { default: false }), { valid: true, error: null, result: { name: 'nswbmw' } })
+  })
+
+  it('.required', function () {
+    let schema = AJS('requiredSchema', {
+      name: { type: 'string', required: true }
+    })
+    assert.deepEqual(schema.validate({ name: 'nswbmw' }), { valid: true, error: null, result: { name: 'nswbmw' } })
+    assert.deepEqual(schema.validate({}), { valid: false,
+      error:
+       {
+         validator: 'required',
+         actual: undefined,
+         expected: { type: 'string', required: true },
+         path: '$.name',
+         schema: 'requiredSchema' },
+      result: {} })
+
+    assert.deepEqual(schema.validate({}, { required: false }), { valid: true, error: null, result: {} })
+  })
+
+  it('.required false', function () {
+    let schema = AJS('requiredSchema', { type: 'string', required: false })
+    assert.deepEqual(schema.validate('aaa'), { valid: true, error: null, result: 'aaa' })
+    assert.deepEqual(schema.validate(''), { valid: true, error: null, result: '' })
+  })
+
+  it('custom validator return boolean', function () {
+    const validateAAA = function (actual) {
       return actual === 'aaa'
     }
-    const schema = AJS('validateSchema', { type: 'string', validate: validate })
+    const schema = AJS('validateSchema', { type: 'string', validateAAA: validateAAA })
     assert.deepEqual(schema.validate('aaa'), { valid: true, error: null, result: 'aaa' })
     assert.deepEqual(schema.validate('bbb'), { valid: false,
       error:
        {
-         validator: 'validate',
+         validator: 'validateAAA',
          actual: 'bbb',
-         expected: { type: 'string', validate: validate },
+         expected: { type: 'string', validateAAA: validateAAA },
          path: '$',
          schema: 'validateSchema' },
       result: 'bbb'
     })
+  })
+
+  it('custom validator throw error', function () {
+    const validateAAA = function (actual) {
+      if (actual !== 'aaa') {
+        throw 'not equal aaa'
+      }
+      return true
+    }
+    const schema = AJS('validateSchema', { type: 'string', validateAAA: validateAAA })
+    assert.deepEqual(schema.validate('aaa'), { valid: true, error: null, result: 'aaa' })
+    assert.deepEqual(schema.validate('bbb'), { valid: false,
+      error:
+       {
+         validator: 'validateAAA',
+         actual: 'bbb',
+         expected: { type: 'string', validateAAA: validateAAA },
+         path: '$',
+         schema: 'validateSchema',
+         originError: 'not equal aaa' },
+      result: 'bbb'
+    })
+  })
+
+  it('ObjectId', function () {
+    function ObjectId (actual, key, parent) {
+      if (!actual || !validator.isMongoId(actual.toString())) {
+        return false
+      }
+      parent[key] = toObjectId(actual)
+      return true
+    }
+
+    const postSchema = AJS('postSchema', {
+      commentIds: [{ type: ObjectId }]
+    })
+
+    const user = {
+      commentIds: [
+        '111111111111111111111111',
+        '222222222222222222222222'
+      ]
+    }
+
+    const result = postSchema.validate(user)
+    assert.deepEqual(result.valid, true)
+    assert.deepEqual(result.error, null)
+    assert.deepEqual(result.result.commentIds[0] instanceof toObjectId, true)
+    assert.deepEqual(result.result.commentIds[1] instanceof toObjectId, true)
   })
 })

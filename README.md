@@ -16,61 +16,97 @@ $ npm i another-json-schema --save
 
 ### Usage
 
-simple:
+### Simple
 
 ```js
-var AJS = require('another-json-schema');
+const AJS = require('another-json-schema')
 
-var userSchema = AJS('userSchema', {
-  name: { type: 'string' },
-  age: { type: 'number', gte: 18 }
-});
+const userSchema = AJS('userSchema', {
+  name: { type: 'string', required: true },
+  age: { type: 'number', gte: 18 },
+  gender: { type: 'string', enum: ['male', 'female'], default: 'male' }
+})
 
-var user = {
-  name: 'nswbmw',
-  age: 17
-};
-
-console.log(userSchema.validate(user));
+// test `required`
+console.log(userSchema.validate({ age: 18 }))
 /*
 { valid: false,
   error:
-   { [Error: ($.age: 17) ✖ (gte: 18)]
+   { TypeError: ($.name: undefined) ✖ (required: true)
+     validator: 'required',
+     actual: undefined,
+     expected: { type: 'string', required: true },
+     path: '$.name',
+     schema: 'userSchema' },
+  result: { age: 18 } }
+*/
+
+// test `default`
+const data = { name: 'nswbmw', age: 18 }
+console.log(userSchema.validate(data))
+/*
+{ valid: true,
+  error: null,
+  result: { name: 'nswbmw', age: 18, gender: 'male' } }
+*/
+console.log(data)
+// { name: 'nswbmw', age: 18, gender: 'male' }
+
+// test `enum`
+console.log(userSchema.validate({ name: 'nswbmw', age: 18, gender: 'lalala' }))
+/*
+{ valid: false,
+  error:
+   { TypeError: ($.gender: "lalala") ✖ (enum: male,female)
+     validator: 'enum',
+     actual: 'lalala',
+     expected: { type: 'string', enum: ['male', 'female'], default: 'male' },
+     path: '$.gender',
+     schema: 'userSchema' },
+  result: { name: 'nswbmw', age: 18, gender: 'lalala' } }
+*/
+
+// test `gte`
+console.log(userSchema.validate({ name: 'nswbmw', age: 17 }))
+/*
+{ valid: false,
+  error:
+   { TypeError: ($.age: 17) ✖ (gte: 18)
      validator: 'gte',
      actual: 17,
      expected: { type: 'number', gte: 18 },
      path: '$.age',
      schema: 'userSchema' },
   result: { name: 'nswbmw', age: 17 } }
- */
+*/
 ```
 
-complex:
+### Nested
 
 ```js
-var AJS = require('another-json-schema');
+const AJS = require('another-json-schema')
 
-var userSchema = AJS('userSchema', {
-  _id: { type: 'string', pattern: /^[0-9a-z]{24}$/ },
+const userSchema = AJS('userSchema', {
+  _id: { type: 'string', pattern: /^[0-9a-z]{24}$/, required: true },
   name: { type: 'string' },
   age: { type: 'number', gte: 18 },
   gender: { type: 'string', enum: ['male', 'female'] }
-});
+})
 
-var commentSchema = AJS('commentSchema', {
-  _id: { type: 'string', pattern: /^[0-9a-z]{24}$/ },
+const commentSchema = AJS('commentSchema', {
+  _id: { type: 'string', pattern: /^[0-9a-z]{24}$/, required: true },
   user: userSchema,
   content: { type: 'string' }
-});
+})
 
-var postSchema = AJS('postSchema', {
-  _id: { type: 'string', pattern: /^[0-9a-z]{24}$/ },
+const postSchema = AJS('postSchema', {
+  _id: { type: 'string', pattern: /^[0-9a-z]{24}$/, required: true },
   author: userSchema,
   content: { type: 'string' },
   comments: [commentSchema]
-});
+})
 
-var post = {
+const post = {
   _id: 'post11111111111111111111',
   author: {
     _id: 'user11111111111111111111',
@@ -90,16 +126,16 @@ var post = {
     },
     content: 'sofa'
   }]
-};
+}
 
-console.log(postSchema.validate(post));
+console.log(postSchema.validate(post))
 /*
 { valid: false,
   error:
    { [Error: ($.comments[].user._id: "wrong_id") ✖ (pattern: /^[0-9a-z]{24}$/)]
      validator: 'pattern',
      actual: 'wrong_id',
-     expected: { type: 'string', pattern: /^[0-9a-z]{24}$/ },
+     expected: { type: 'string', pattern: /^[0-9a-z]{24}$/, required: true },
      path: '$.comments[].user._id',
      schema: 'userSchema' },
   result:
@@ -111,57 +147,115 @@ console.log(postSchema.validate(post));
         gender: 'male' },
      content: 'lalala',
      comments: [ [Object] ] } }
- */
+*/
 ```
 
-custom validate function(like: ObjectId):
+### Register validator
 
 ```js
-var validator = require('validator');
-var toObjectId = require('mongodb').ObjectId;
-var AJS = require('another-json-schema');
+const AJS = require('another-json-schema')
 
-var postSchema = AJS('postSchema', {
-  author: {
-    type: function ObjectId(value) {
-      if (!value || !validator.isMongoId(value.toString())) {
-        throw new Error('author is not a valid ObjectId');
-      }
-      return toObjectId(value);
-    }
-  },
-  content: { type: 'string' }
-});
+AJS.register('adult', function (actual, expected, key, parent) {
+  return expected ? (actual > 18) : (actual <= 18)
+})
+const adultSchema = AJS('adultSchema', { type: 'number', adult: true })
 
-var post = {
-  author: '111111111111111111111111',
-  content: 'haha'
-};
-
-console.log(postSchema.validate(post));
-/*
-{ valid: true,
-  error: null,
-  result: { author: 111111111111111111111111, content: 'haha' } }
- */
-
-//validate specific field
-console.log(postSchema._children.author.validate('lalala'));
+console.log(adultSchema.validate(19))
+// { valid: true, error: null, result: 19 }
+console.log(adultSchema.validate(17))
 /*
 { valid: false,
   error:
-   { [Error: ($.author: "lalala") ✖ (type: ObjectId)]
-     validator: 'type',
-     actual: 'lalala',
-     expected: { type: [Function: ObjectId] },
-     path: '$.author',
-     schema: 'postSchema',
-     originError: [Error: author is not a valid ObjectId] },
-  result: 'lalala' }
- */
+   { TypeError: ($: 17) ✖ (adult: true)
+     validator: 'adult',
+     actual: 17,
+     expected: { type: 'number', adult: true },
+     path: '$',
+     schema: 'adultSchema' },
+  result: 17 }
+*/
 ```
 
-**Note:** `type` validator is special, it can overwrite original value by value returned from function. others validator can only validate its value.
+### Custom validate function
+
+Custom ObjectId validator, check whether ObjectId then wrap `_id` string to ObjectId.
+
+```js
+const AJS = require('another-json-schema')
+const validator = require('validator')
+const toObjectId = require('mongodb').ObjectId
+
+function ObjectId(actual, key, parent) {
+  if (!actual || !validator.isMongoId(actual.toString())) {
+    return false
+  }
+  parent[key] = toObjectId(actual)
+  return true
+}
+
+const postSchema = AJS('postSchema', {
+  commentIds: [{ type: ObjectId }]
+})
+
+const user = {
+  commentIds: [
+    '111111111111111111111111',
+    '222222222222222222222222'
+  ]
+}
+
+console.log(postSchema.validate(user))
+/*
+{ valid: true,
+  error: null,
+  result: { commentIds: [ 111111111111111111111111, 222222222222222222222222 ] } }
+*/
+
+//validate specific field
+console.log(postSchema._children.commentIds.validate('lalala'))
+/*
+{ valid: false,
+  error:
+   { TypeError: ($.commentIds[]: "lalala") ✖ (type: ObjectId)
+     validator: 'type',
+     path: '$.commentIds[]',
+     actual: 'lalala',
+     expected: [ [Object] ],
+     schema: 'postSchema' },
+  result: 'lalala' }
+*/
+```
+
+#### Ignore validator
+
+```js
+const AJS = require('another-json-schema')
+
+const userSchema = AJS('userSchema', {
+  _id: { type: 'number', range: [1, 100] }
+})
+
+const user = {
+  _id: 0
+}
+
+console.log(userSchema.validate(user))
+/*
+{ valid: false,
+  error:
+   { TypeError: ($._id: 0) ✖ (range: 1,100)
+     validator: 'range',
+     actual: 0,
+     expected: { type: 'number', range: [Array] },
+     path: '$._id',
+     schema: 'userSchema' },
+  result: { _id: 0 } }
+*/
+console.log(userSchema.validate(user, { range: false }))
+// { valid: true, error: null, result: { _id: 0 } }
+```
+
+**NB**: `type` validator cannot ignore by passing `false`.
 
 ### API
 
@@ -174,39 +268,39 @@ Constructor.
 Register a validator. eg:
 
 ```js
-AJS.register('gt', function (actual, expected, key, parentNode) {
-  return actual > expected;
-});
+AJS.register('adult', function (actual, expected, key, parent) {
+  return expected ? (actual > 18) : (actual <= 18)
+})
 ```
 
-#### schema.compile([name], schema)
+#### ajs.compile([name], schema)
 
 Compile a schema. The following two ways are the same:
 
 ```js
-var userSchema = AJS('userSchema', {
+const userSchema = AJS('userSchema', {
   _id: { type: 'string', pattern: /^[0-9a-z]{24}$/ },
   name: { type: 'string' },
   age: { type: 'number', gte: 18 },
   gender: { type: 'string', enum: ['male', 'female'] }
-});
+})
 ```
 
 ```js
-var newSchema = new AJS();
-var userSchema = newSchema.compile('userSchema', {
+const newSchema = new AJS()
+const userSchema = newSchema.compile('userSchema', {
   _id: { type: 'string', pattern: /^[0-9a-z]{24}$/ },
   name: { type: 'string' },
   age: { type: 'number', gte: 18 },
   gender: { type: 'string', enum: ['male', 'female'] }
-});
+})
 ```
 
 #### compiledSchema.validate(data, [opts])
 
-Use the compiled template to validate a json. returns a object:
+Use the compiled validator to validate an object. it will modify the original object and return it:
 
-- valid: {Boolean} wether a valid json
+- valid: {Boolean} wether a valid object
 - error: {Error|null}
   - message: error message, eg: `($.comments[].user._id: "wrong_id") ✖ (pattern: /^[0-9a-z]{24}$/)`
   - validator: validator name, eg: `pattern`,
@@ -220,7 +314,6 @@ Use the compiled template to validate a json. returns a object:
 opts:
 
 - additionalProperties: {Boolean} if true, retain the original field. default `false`
-- ignoreNodeType: {Boolean} if true, ignore check node type, like: `[]`. default: `false`
 - gt, gte, lt, lte ...: {Boolean} if false, will not execute this validator.
 
 ### Built-in validators
@@ -233,6 +326,8 @@ opts:
 - range
 - enum
 - pattern
+- default
+- required
 
 ### More examples
 
@@ -240,8 +335,8 @@ see [test](./test).
 
 ### Test
 
-```
-npm test (coverage 100%)
+```sh
+$ npm test (coverage 100%)
 ```
 
 ### License

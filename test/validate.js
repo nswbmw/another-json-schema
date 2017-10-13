@@ -68,14 +68,13 @@ describe('validate', function () {
     })
 
     schema = AJS([{ type: 'string' }])
-    assert.deepEqual(schema.validate('1', { ignoreNodeType: true }), { valid: true, error: null, result: '1' })
     assert.deepEqual(schema.validate(['1']), { valid: true, error: null, result: ['1'] })
     assert.deepEqual(schema.validate([2, '1']), { valid: false,
       error:
        {
          validator: 'type',
          actual: 2,
-         expected: { type: 'string' },
+         expected: [{ type: 'string' }],
          path: '$[]',
          schema: undefined },
       result: [2, '1']
@@ -88,7 +87,7 @@ describe('validate', function () {
        {
          validator: 'type',
          actual: 2,
-         expected: { type: 'string' },
+         expected: [{ type: 'string' }],
          path: '$[]',
          schema: undefined },
       result: ['1', 2]
@@ -135,7 +134,7 @@ describe('validate', function () {
        {
          validator: 'type',
          actual: 'nswbmw',
-         expected: { type: 'string' },
+         expected: [{ type: 'string' }],
          path: '$.nicknames[]',
          schema: 'userSchema' },
       result: { _id: '111111111111111111111111', nicknames: 'nswbmw' }
@@ -279,6 +278,19 @@ describe('validate', function () {
         content: 'bench'
       }]
     }
+
+    var post3 = {
+      _id: 'post11111111111111111111',
+      author: {
+        _id: 'user11111111111111111111',
+        name: 'nswbmw',
+        age: 100,
+        gender: 'male',
+        pet: 'cat'
+      },
+      content: 'lalala',
+      comments: 'haha'
+    }
     assert.deepEqual(postSchema.validate(post2).error.message, '($.comments[].user._id: "wrong_id") ✖ (pattern: /^[0-9a-z]{24}$/)')
     assert.deepEqual(postSchema.validate(post2), {
       valid: false,
@@ -317,5 +329,30 @@ describe('validate', function () {
         }]
       }
     })
+    assert.deepEqual(postSchema.validate(post3), {
+      valid: false,
+      error:
+       {
+         validator: 'type',
+         actual: 'haha',
+         expected:
+          [ { _id: { type: 'string', pattern: /^[0-9a-z]{24}$/ },
+            user:
+             { _id: { type: 'string', pattern: /^[0-9a-z]{24}$/ },
+               name: { type: 'string', required: true },
+               age: { type: 'number', gte: 18 },
+               gender: { type: 'string', enum: ['male', 'female'] } },
+            content: { type: 'string', required: true } } ],
+         path: '$.comments[]',
+         schema: 'commentSchema' },
+      result:
+       { _id: 'post11111111111111111111',
+         author:
+          { _id: 'user11111111111111111111',
+            name: 'nswbmw',
+            age: 100,
+            gender: 'male' },
+         content: 'lalala',
+         comments: 'haha' } })
   })
 })

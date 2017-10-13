@@ -24,8 +24,8 @@ AJS.prototype.compile = function compile (name, schema) {
   if (typeof schema !== 'object') throw new TypeError('Schema must be object or array')
 
   this._children = _compileSchema(schema, this)
-
   _iteratorSchema(this)
+
   return this
 }
 
@@ -47,7 +47,7 @@ function _compileSchema (schema, ctx) {
       ctx._leaf = schema._leaf
       delete ctx._object
     }
-    // consider [JAS(...)] & AJS([...])
+    // consider [AJS(...)] & AJS([...])
     if (schema._array) {
       ctx._array = schema._array
       delete ctx._object
@@ -62,7 +62,6 @@ function _compileSchema (schema, ctx) {
     delete ctx._object
     return schema
   }
-
   for (let key in schema) {
     children[key] = AJS(schema[key])
   }
@@ -102,35 +101,35 @@ function _validateObject (obj, opts, ctx) {
   let error = null
 
   try {
-    obj = iterator(obj, opts, ctx)
+    iterator(obj, null, obj, opts, ctx)
   } catch (e) {
     error = e
   }
-  function iterator (children, opts, ctx) {
+  function iterator (parent, key, children, opts, ctx) {
     const isObject = typeof children === 'object'
     const isArray = Array.isArray(children)
 
-    if (!opts.ignoreNodeType) {
-      validateType(children, ctx)
-    }
-    if (ctx._leaf || Buffer.isBuffer(children) || !isObject) {
-      return validateLeaf(children, opts, ctx)
+    validateType(children, ctx)
+
+    if (ctx._leaf || !isObject) {
+      validateLeaf(parent, key, children, opts, ctx)
     } else {
       if (isArray) {
-        return children.map(function (item) {
-          return iterator(item, opts, ctx)
+        children.forEach(function (item, index) {
+          return iterator(children, index, item, opts, ctx)
         })
       } else {
-        for (let key in children) {
-          if (!ctx._children || !ctx._children[key]) {
-            if (!additionalProperties) {
+        // if not allow additionalProperties, delete those properties
+        if (!additionalProperties) {
+          for (let key in children) {
+            if (!(key in ctx._children)) {
               delete children[key]
             }
-          } else {
-            children[key] = iterator(children[key], opts, ctx._children[key])
           }
         }
-        return children
+        for (let key in ctx._children) {
+          iterator(children, key, children[key], opts, ctx._children[key])
+        }
       }
     }
   }
@@ -143,8 +142,8 @@ function _validateObject (obj, opts, ctx) {
 }
 
 function validateType (value, ctx) {
-  var isObject = typeof value === 'object'
-  var isArray = Array.isArray(value)
+  const isObject = typeof value === 'object'
+  const isArray = Array.isArray(value)
 
   if (ctx._leaf) {
     if (typeof ctx._children.type === 'function') {
@@ -162,36 +161,67 @@ function validateType (value, ctx) {
   }
 }
 
-function validateLeaf (value, opts, ctx) {
+function validateLeaf (parent, key, value, opts, ctx) {
   // leaf also is array
   if (Array.isArray(value)) {
-    return value.map(function (item) {
-      return validate(item)
+    return value.map(function (item, index) {
+      return validate(item, index, value)
     })
   } else {
-    return validate(value)
+    return validate(value, key, parent)
   }
 
-  function validate (value) {
+  function validate (value, key, parent) {
     let valid = true// default passed
-    // check type first, can modify `value`
+    // first, check default
+    if ('default' in ctx._children) {
+      if (opts.default == null || opts.default) {
+        helpersFuncs.default.call(ctx, value, ctx._children.default, key, parent)
+        // rewrite value
+        value = parent[key]
+      } else {
+        return value
+      }
+    }
+
+    // second, check required
+    if ('required' in ctx._children) {
+      if (opts.required == null || opts.required) {
+        valid = helpersFuncs.required.call(ctx, value, ctx._children.required, key, parent)
+        if (!valid) {
+          throwError(value, ctx, 'required')
+        }
+      } else {
+        return value
+      }
+    }
+
+    // then check type
     try {
-      value = helpersFuncs.type.call(ctx, value, ctx._children.type)
+      valid = helpersFuncs.type.call(ctx, value, ctx._children.type, key, parent)
     } catch (e) {
       throwError(value, ctx, 'type', null, e)
     }
+    if (!valid) {
+      throwError(value, ctx, 'type')
+    }
 
-    // check others, can not modify `value`
+    // then check others
     for (let helper in ctx._children) {
-      if (helper === 'type' || (opts[helper] != null && !opts[helper])) {
+      if (['type', 'default', 'required'].indexOf(helper) !== -1 || (opts[helper] != null && !opts[helper])) {
         continue
       }
-      if (typeof ctx._children[helper] === 'function') {
-        // custom function validator
-        valid = ctx._children[helper].call(ctx, value)
-      } else if (helpersFuncs[helper]) {
-        // registered helpers
-        valid = helpersFuncs[helper].call(ctx, value, ctx._children[helper])
+      try {
+        /* istanbul ignore else */
+        if (typeof ctx._children[helper] === 'function') {
+          // custom function validator
+          valid = ctx._children[helper].call(ctx, value, ctx._children[helper], key, parent)
+        } else if (helpersFuncs[helper]) {
+          // registered helpers
+          valid = helpersFuncs[helper].call(ctx, value, ctx._children[helper], key, parent)
+        }
+      } catch (e) {
+        throwError(value, ctx, helper, null, e)
       }
       if (!valid) {
         throwError(value, ctx, helper)
@@ -202,12 +232,12 @@ function validateLeaf (value, opts, ctx) {
 }
 
 function throwError (value, ctx, helper, type, originError) {
-  let error = null
+  let error
   if (!type) {
     if (helper) {
       const helperEntry = ctx._children[helper]
       if (typeof helperEntry === 'function') {
-        error = new TypeError('(' + ctx._path + ': ' + JSON.stringify(value) + ') ✖ (' + helper + ': ' + (helperEntry.name || 'Function') + ')')
+        error = new TypeError('(' + ctx._path + ': ' + JSON.stringify(value) + ') ✖ (' + helper + ': ' + helperEntry.name + ')')
       } else {
         error = new TypeError('(' + ctx._path + ': ' + JSON.stringify(value) + ') ✖ (' + helper + ': ' + helperEntry + ')')
       }
@@ -221,9 +251,9 @@ function throwError (value, ctx, helper, type, originError) {
     error.validator = 'type'
   }
 
-  error.actual = value
-  error.expected = ctx._children
   error.path = ctx._path
+  error.actual = value
+  error.expected = ctx._schema
   error.schema = ctx._name
 
   if (originError) {
