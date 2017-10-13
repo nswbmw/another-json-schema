@@ -258,7 +258,8 @@ describe('helper', function () {
 
   it('.required', function () {
     let schema = AJS('requiredSchema', {
-      name: { type: 'string', required: true }
+      name: { type: 'string', required: true },
+      age: { type: 'number' }
     })
     assert.deepEqual(schema.validate({ name: 'nswbmw' }), { valid: true, error: null, result: { name: 'nswbmw' } })
     assert.deepEqual(schema.validate({}), { valid: false,

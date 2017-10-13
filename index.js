@@ -194,6 +194,11 @@ function validateLeaf (parent, key, value, opts, ctx) {
       } else {
         return value
       }
+    } else {
+      // no required, and value is null, then pass
+      if (value == null) {
+        return
+      }
     }
 
     // then check type

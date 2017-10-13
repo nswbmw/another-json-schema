@@ -1,3 +1,7 @@
+## 3.1.0/2017-10-13
+
+- fix no `required` bug, when pass `null` will check `type`
+
 ## 3.0.0/2017-10-13
 
 - fix bugs
