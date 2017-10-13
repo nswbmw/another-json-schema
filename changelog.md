@@ -5,6 +5,6 @@
 - update README
 - use power-assert
 - use standard eslint
-- add `default` & `requied`
+- add `default` & `required`
 - rm `ignoreNodeType` option
 - change validator function, add `key` and `parent` paramters, return `boolean`
