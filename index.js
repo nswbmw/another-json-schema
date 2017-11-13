@@ -185,7 +185,7 @@ function validateLeaf (parent, key, value, opts, ctx) {
     }
 
     // second, check required
-    if ('required' in ctx._children) {
+    if ('required' in ctx._children && ctx._children.required !== false) {
       if (opts.required == null || opts.required) {
         valid = helpersFuncs.required.call(ctx, value, ctx._children.required, key, parent)
         if (!valid) {
