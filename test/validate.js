@@ -355,30 +355,4 @@ describe('validate', function () {
          content: 'lalala',
          comments: 'haha' } })
   })
-  
-  it('required fields', function () {
-    const schema = AJS({ type: 'string', required: true })
-    assert.deepEqual(schema.validate('1'), { valid: true, error: null, result: '1' })
-    assert.deepEqual(schema.validate(), {
-      valid: false,
-      error: {
-        validator: 'required',
-        actual: undefined,
-        expected: { type: 'string', required: true },
-        path: '$',
-        schema: undefined },
-      result: undefined
-    }) 
-  })
-
-  it('not required fields', function () {
-    const schema1 = AJS({ type: 'string' })
-    const schema2 = AJS({ type: 'string', required: false })
-    const check = schema => {
-      assert.deepEqual(schema.validate('1'), { valid: true, error: null, result: '1' })
-      assert.deepEqual(schema.validate(), { valid: true, error: null, result: undefined })
-    }
-    check(schema1)
-    check(schema2)
-  })
 })

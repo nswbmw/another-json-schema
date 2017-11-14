@@ -279,6 +279,7 @@ describe('helper', function () {
     let schema = AJS('requiredSchema', { type: 'string', required: false })
     assert.deepEqual(schema.validate('aaa'), { valid: true, error: null, result: 'aaa' })
     assert.deepEqual(schema.validate(''), { valid: true, error: null, result: '' })
+    assert.deepEqual(schema.validate(), { valid: true, error: null, result: undefined })
   })
 
   it('custom validator return boolean', function () {
