@@ -1,3 +1,7 @@
+## 3.2.1/2017-11-14
+
+- fix `required` throw error when value is 0|false
+
 ## 3.2.0/2017-11-14
 
 - fix schema `required: false` bug

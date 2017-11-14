@@ -273,6 +273,15 @@ describe('helper', function () {
       result: {} })
 
     assert.deepEqual(schema.validate({}, { required: false }), { valid: true, error: null, result: {} })
+
+    // number
+    schema = AJS('requiredSchema', { type: 'number', required: true })
+    assert.deepEqual(schema.validate(0), { valid: true, error: null, result: 0 })
+
+    // boolean
+    schema = AJS('requiredSchema', { type: 'boolean', required: true })
+    assert.deepEqual(schema.validate(true), { valid: true, error: null, result: true })
+    assert.deepEqual(schema.validate(false), { valid: true, error: null, result: false })
   })
 
   it('.required false', function () {

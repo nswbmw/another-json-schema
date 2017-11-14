@@ -52,5 +52,5 @@ exports.default = function (actual, expected, key, parent) {
 }
 
 exports.required = function (actual, expected, key, parent) {
-  return !!actual === true
+  return actual != null
 }
