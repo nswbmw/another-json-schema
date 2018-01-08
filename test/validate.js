@@ -53,6 +53,46 @@ describe('validate', function () {
     })
   })
 
+  it('ignoreNodeType', function () {
+    let userSchema = AJS('userSchema', {
+      posts: [{ type: 'string' }]
+    })
+
+    assert.deepEqual(userSchema.validate({
+      posts: '1'
+    }), {
+      valid: false,
+      error: {
+        validator: 'type',
+        path: '$.posts[]',
+        actual: '1',
+        expected: [ { type: 'string' } ],
+        schema: 'userSchema'
+      },
+      result: { posts: '1' }
+    })
+
+    assert.deepEqual(userSchema.validate({
+      posts: '1'
+    }, { ignoreNodeType: true }), {
+      valid: true,
+      error: null,
+      result: { posts: '1' }
+    })
+
+    userSchema = AJS('userSchema', {
+      posts: { type: 'string' }
+    })
+
+    assert.deepEqual(userSchema.validate({
+      posts: ['1', '2', '3']
+    }, { ignoreNodeType: true }), {
+      valid: true,
+      error: null,
+      result: { posts: ['1', '2', '3'] }
+    })
+  })
+
   it('normal', function () {
     let schema = AJS({ type: 'string' })
     assert.deepEqual(schema.validate('1'), { valid: true, error: null, result: '1' })

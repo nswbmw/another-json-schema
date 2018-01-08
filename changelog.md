@@ -1,3 +1,7 @@
+## 3.3.0/2018-01-08
+
+- add `ignoreNodeType`
+
 ## 3.2.1/2017-11-14
 
 - fix `required` throw error when value is 0|false

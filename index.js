@@ -21,7 +21,9 @@ AJS.prototype.compile = function compile (name, schema) {
   } else {
     this._name = name
   }
-  if (typeof schema !== 'object') throw new TypeError('Schema must be object or array')
+  if (typeof schema !== 'object') {
+    throw new TypeError(`Schema must be object or array, but got ${JSON.stringify(schema)}, maybe missing 'type' validator.`)
+  }
 
   this._children = _compileSchema(schema, this)
   _iteratorSchema(this)
@@ -109,7 +111,9 @@ function _validateObject (obj, opts, ctx) {
     const isObject = typeof children === 'object'
     const isArray = Array.isArray(children)
 
-    validateType(children, ctx)
+    if (!opts.ignoreNodeType) {
+      validateType(children, ctx)
+    }
 
     if (ctx._leaf || !isObject) {
       validateLeaf(parent, key, children, opts, ctx)

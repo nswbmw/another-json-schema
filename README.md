@@ -314,6 +314,7 @@ Use the compiled validator to validate an object. it will modify the original ob
 opts:
 
 - additionalProperties: {Boolean} if true, retain the original field. default `false`
+- ignoreNodeType: {Boolean} if true, ignore check node type, like: `[]`. default: `false`
 - gt, gte, lt, lte ...: {Boolean} if false, will not execute this validator.
 
 ### Built-in validators

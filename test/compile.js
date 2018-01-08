@@ -6,7 +6,7 @@ describe('compile', function () {
     try {
       AJS(111, 222)
     } catch (e) {
-      assert.equal(e.message, 'Schema must be object or array')
+      assert.ok(e.message.match(/Schema must be object or array/))
     }
   })
 
