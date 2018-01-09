@@ -183,8 +183,6 @@ function validateLeaf (parent, key, value, opts, ctx) {
         helpersFuncs.default.call(ctx, value, ctx._children.default, key, parent)
         // rewrite value
         value = parent[key]
-      } else {
-        return value
       }
     }
 
@@ -195,14 +193,12 @@ function validateLeaf (parent, key, value, opts, ctx) {
         if (!valid) {
           throwError(value, ctx, 'required')
         }
-      } else {
-        return value
       }
-    } else {
-      // no required, and value is null, then pass
-      if (value == null) {
-        return
-      }
+    }
+
+    // null will return, not check type & other validators
+    if (value == null) {
+      return value
     }
 
     // then check type

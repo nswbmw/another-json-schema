@@ -1,3 +1,8 @@
+## 3.4.0/2018-01-09
+
+- fix validate logic, even pass `required: false` or `default: false`, still check type & other validators
+- upgrade deps
+
 ## 3.3.0/2018-01-08
 
 - add `ignoreNodeType`

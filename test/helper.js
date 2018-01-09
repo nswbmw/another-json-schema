@@ -261,6 +261,17 @@ describe('helper', function () {
       name: { type: 'string', required: true },
       age: { type: 'number' }
     })
+    assert.deepEqual(schema.validate({ name: 1 }, { required: false }), {
+      valid: false,
+      error:
+       {
+         validator: 'type',
+         path: '$.name',
+         actual: 1,
+         expected: { type: 'string', required: true },
+         schema: 'requiredSchema' },
+      result: { name: 1 } })
+
     assert.deepEqual(schema.validate({ name: 'nswbmw' }), { valid: true, error: null, result: { name: 'nswbmw' } })
     assert.deepEqual(schema.validate({}), { valid: false,
       error:
