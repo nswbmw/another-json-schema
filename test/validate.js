@@ -11,6 +11,24 @@ describe('validate', function () {
     }
   })
 
+  it('_customErrorMsg', function () {
+    const userSchema = AJS('userSchema', {
+      name: { type: 'string', required: true },
+      age: {
+        type: 'number',
+        gte: 18,
+        _customErrorMsg: {
+          gte: '您未满 18 岁'
+        }
+      }
+    })
+
+    assert.deepEqual(userSchema.validate({
+      name: 'nswbmw',
+      age: 17
+    }).error.message, '您未满 18 岁')
+  })
+
   it('additionalProperties', function () {
     var userSchema = AJS('userSchema', {
       _id: { type: 'string', pattern: /^[0-9a-z]{24}$/ },

@@ -1,3 +1,7 @@
+## 3.5.0/2018-04-11
+
+- add `_customErrorMsg`
+
 ## 3.4.0/2018-01-09
 
 - fix validate logic, even pass `required: false` or `default: false`, still check type & other validators

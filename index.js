@@ -213,7 +213,7 @@ function validateLeaf (parent, key, value, opts, ctx) {
 
     // then check others
     for (let helper in ctx._children) {
-      if (['type', 'default', 'required'].indexOf(helper) !== -1 || (opts[helper] != null && !opts[helper])) {
+      if (['type', 'default', 'required', '_customErrorMsg'].indexOf(helper) !== -1 || (opts[helper] != null && !opts[helper])) {
         continue
       }
       try {
@@ -238,24 +238,26 @@ function validateLeaf (parent, key, value, opts, ctx) {
 
 function throwError (value, ctx, helper, type, originError) {
   let error
+  const _customErrorMsg = ctx._schema._customErrorMsg || {}
   if (!type) {
     if (helper) {
       const helperEntry = ctx._children[helper]
       if (typeof helperEntry === 'function') {
-        error = new TypeError('(' + ctx._path + ': ' + JSON.stringify(value) + ') ✖ (' + helper + ': ' + helperEntry.name + ')')
+        error = new Error('(' + ctx._path + ': ' + JSON.stringify(value) + ') ✖ (' + helper + ': ' + helperEntry.name + ')')
       } else {
-        error = new TypeError('(' + ctx._path + ': ' + JSON.stringify(value) + ') ✖ (' + helper + ': ' + helperEntry + ')')
+        error = new Error('(' + ctx._path + ': ' + JSON.stringify(value) + ') ✖ (' + helper + ': ' + helperEntry + ')')
       }
       error.validator = helper
     } else {
-      error = new TypeError('(' + ctx._path + ': ' + JSON.stringify(value) + ') ✖ (' + JSON.stringify(ctx._children) + ')')
+      error = new Error('(' + ctx._path + ': ' + JSON.stringify(value) + ') ✖ (' + JSON.stringify(ctx._children) + ')')
       error.validator = 'type'
     }
   } else {
-    error = new TypeError('(' + ctx._path + ': ' + JSON.stringify(value) + ') ✖ (type: ' + type + ')')
+    error = new Error('(' + ctx._path + ': ' + JSON.stringify(value) + ') ✖ (type: ' + type + ')')
     error.validator = 'type'
   }
 
+  error.message = _customErrorMsg[helper] || error.message
   error.path = ctx._path
   error.actual = value
   error.expected = ctx._schema

@@ -32,7 +32,7 @@ console.log(userSchema.validate({ age: 18 }))
 /*
 { valid: false,
   error:
-   { TypeError: ($.name: undefined) ✖ (required: true)
+   { Error: ($.name: undefined) ✖ (required: true)
      validator: 'required',
      actual: undefined,
      expected: { type: 'string', required: true },
@@ -57,7 +57,7 @@ console.log(userSchema.validate({ name: 'nswbmw', age: 18, gender: 'lalala' }))
 /*
 { valid: false,
   error:
-   { TypeError: ($.gender: "lalala") ✖ (enum: male,female)
+   { Error: ($.gender: "lalala") ✖ (enum: male,female)
      validator: 'enum',
      actual: 'lalala',
      expected: { type: 'string', enum: ['male', 'female'], default: 'male' },
@@ -71,7 +71,7 @@ console.log(userSchema.validate({ name: 'nswbmw', age: 17 }))
 /*
 { valid: false,
   error:
-   { TypeError: ($.age: 17) ✖ (gte: 18)
+   { Error: ($.age: 17) ✖ (gte: 18)
      validator: 'gte',
      actual: 17,
      expected: { type: 'number', gte: 18 },
@@ -150,6 +150,41 @@ console.log(postSchema.validate(post))
 */
 ```
 
+### Custom Error Message
+
+```js
+const AJS = require('another-json-schema')
+
+const userSchema = AJS('userSchema', {
+  name: { type: 'string', required: true },
+  age: {
+    type: 'number',
+    gte: 18,
+    _customErrorMsg: {
+      gte: '您未满 18 岁'
+    }
+  }
+})
+
+// test `_customErrorMsg`
+console.log(userSchema.validate({
+  name: 'nswbmw',
+  age: 17
+}))
+/*
+{ valid: false,
+  error:
+   { Error: 您未满 18 岁
+     validator: 'gte',
+     path: '$.age',
+     actual: 17,
+     expected: { type: 'number', gte: 18, _customErrorMsg: [Object] },
+     schema: 'userSchema' },
+  result: { name: 'nswbmw', age: 17 } }
+*/
+```
+
+
 ### Register validator
 
 ```js
@@ -166,7 +201,7 @@ console.log(adultSchema.validate(17))
 /*
 { valid: false,
   error:
-   { TypeError: ($: 17) ✖ (adult: true)
+   { Error: ($: 17) ✖ (adult: true)
      validator: 'adult',
      actual: 17,
      expected: { type: 'number', adult: true },
@@ -216,7 +251,7 @@ console.log(postSchema._children.commentIds.validate('lalala'))
 /*
 { valid: false,
   error:
-   { TypeError: ($.commentIds[]: "lalala") ✖ (type: ObjectId)
+   { Error: ($.commentIds[]: "lalala") ✖ (type: ObjectId)
      validator: 'type',
      path: '$.commentIds[]',
      actual: 'lalala',
@@ -243,7 +278,7 @@ console.log(userSchema.validate(user))
 /*
 { valid: false,
   error:
-   { TypeError: ($._id: 0) ✖ (range: 1,100)
+   { Error: ($._id: 0) ✖ (range: 1,100)
      validator: 'range',
      actual: 0,
      expected: { type: 'number', range: [Array] },
