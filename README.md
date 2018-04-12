@@ -355,6 +355,7 @@ opts:
 ### Built-in validators
 
 - type
+- eq|equal
 - gt
 - gte
 - lt

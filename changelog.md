@@ -1,3 +1,7 @@
+## 3.5.1/2018-04-12
+
+- add `.eq` `.equal` validator
+
 ## 3.5.0/2018-04-11
 
 - add `_customErrorMsg`

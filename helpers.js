@@ -54,3 +54,11 @@ exports.default = function (actual, expected, key, parent) {
 exports.required = function (actual, expected, key, parent) {
   return actual != null
 }
+
+/*
+ * common
+ */
+
+exports.eq = exports.equal = function (actual, expected, key, parent) {
+  return actual === expected
+}

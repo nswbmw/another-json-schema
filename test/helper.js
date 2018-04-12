@@ -132,6 +132,22 @@ describe('helper', function () {
     })
   })
 
+  it('.eq, .equal', function () {
+    const numberSchema = AJS('numberSchema', { type: 'number', eq: 0 })
+    assert.deepEqual(numberSchema.validate(0), { valid: true, error: null, result: 0 })
+
+    const stringSchema = AJS('stringSchema', { type: 'string', equal: 'haha' })
+    assert.deepEqual(stringSchema.validate('hehe'), { valid: false,
+      error:
+       {
+         validator: 'equal',
+         path: '$',
+         actual: 'hehe',
+         expected: { type: 'string', equal: 'haha' },
+         schema: 'stringSchema' },
+      result: 'hehe' })
+  })
+
   it('.gt', function () {
     const schema = AJS('numberSchema', { type: 'number', gt: 0 })
     assert.deepEqual(schema.validate(1), { valid: true, error: null, result: 1 })
