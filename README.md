@@ -211,7 +211,7 @@ console.log(adultSchema.validate(17))
 */
 ```
 
-### Custom validate function
+### Custom type validate function
 
 Custom ObjectId validator, check whether ObjectId then wrap `_id` string to ObjectId.
 
@@ -230,6 +230,58 @@ function ObjectId(actual, key, parent) {
 
 const postSchema = AJS('postSchema', {
   commentIds: [{ type: ObjectId }]
+})
+
+const user = {
+  commentIds: [
+    '111111111111111111111111',
+    '222222222222222222222222'
+  ]
+}
+
+console.log(postSchema.validate(user))
+/*
+{ valid: true,
+  error: null,
+  result: { commentIds: [ 111111111111111111111111, 222222222222222222222222 ] } }
+*/
+
+//validate specific field
+console.log(postSchema._children.commentIds.validate('lalala'))
+/*
+{ valid: false,
+  error:
+   { Error: ($.commentIds[]: "lalala") ✖ (type: ObjectId)
+     validator: 'type',
+     path: '$.commentIds[]',
+     actual: 'lalala',
+     expected: [ [Object] ],
+     schema: 'postSchema' },
+  result: 'lalala' }
+*/
+```
+
+### Internal type validator
+
+- 'string'
+- 'number'
+- 'boolean'
+- AJS.Types.ObjectId
+- AJS.Types.String
+- AJS.Types.Number
+- AJS.Types.Date
+- AJS.Types.Buffer
+- AJS.Types.Boolean
+- AJS.Types.Mixed
+
+**What's difference between `number` and `Mongolass.Types.Number` ?**
+`number` only check type, `Mongolass.Types.Number` will try to convert value to a number, if failed then throw error.
+
+```js
+const AJS = require('/Users/nswbmw/work/GitHub/Node.js/another-json-schema')
+
+const postSchema = AJS('postSchema', {
+  commentIds: [{ type: AJS.Types.ObjectId }]
 })
 
 const user = {

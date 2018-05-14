@@ -1,4 +1,5 @@
 const helpersFuncs = require('./helpers')
+const Types = require('./Types')
 
 function AJS (name, schema) {
   if (!(this instanceof AJS)) {
@@ -271,3 +272,4 @@ function throwError (value, ctx, helper, type, originError) {
 
 module.exports = AJS
 module.exports.helpers = helpersFuncs
+module.exports.Types = Types
