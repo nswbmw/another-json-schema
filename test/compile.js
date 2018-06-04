@@ -2,11 +2,21 @@ const AJS = require('..')
 const assert = require('assert')
 
 describe('compile', function () {
-  it('error', function () {
+  it('error: schema type', function () {
     try {
       AJS(111, 222)
     } catch (e) {
       assert.ok(e.message.match(/Schema must be object or array/))
+    }
+  })
+
+  it('error: schema value is null', function () {
+    try {
+      AJS({
+        type: null
+      })
+    } catch (e) {
+      assert.ok(e.message.match(/Schema key "type" is null, Schema is/))
     }
   })
 

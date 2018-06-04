@@ -1,3 +1,7 @@
+## 3.6.1/2018-06-04
+
+- check schema value & throw TypeError when got null
+
 ## 3.6.0/2018-05-14
 
 - add `Types`

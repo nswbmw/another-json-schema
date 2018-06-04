@@ -66,6 +66,9 @@ function _compileSchema (schema, ctx) {
     return schema
   }
   for (let key in schema) {
+    if (schema[key] == null) {
+      throw new TypeError(`Schema key "${key}" is ${schema[key]}, Schema is ${JSON.stringify(schema)}`)
+    }
     children[key] = AJS(schema[key])
   }
 
