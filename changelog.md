@@ -1,3 +1,7 @@
+## 3.7.0/2018-06-21
+
+- fix: `type` function maybe change value, then override original value
+
 ## 3.6.1/2018-06-04
 
 - check schema value & throw TypeError when got null

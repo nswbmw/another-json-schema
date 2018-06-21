@@ -215,6 +215,11 @@ function validateLeaf (parent, key, value, opts, ctx) {
       throwError(value, ctx, 'type')
     }
 
+    // rewrite value, because `type` function maybe change value
+    if (typeof parent === 'object') {
+      value = parent[key]
+    }
+
     // then check others
     for (let helper in ctx._children) {
       if (['type', 'default', 'required', '_customErrorMsg'].indexOf(helper) !== -1 || (opts[helper] != null && !opts[helper])) {

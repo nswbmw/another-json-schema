@@ -225,7 +225,7 @@ describe('helper', function () {
   })
 
   it('.enum', function () {
-    const schema = AJS('enumSchema', { type: 'string', enum: ['aaa', 'bbb'] })
+    let schema = AJS('enumSchema', { type: 'string', enum: ['aaa', 'bbb'] })
     assert.deepEqual(schema.validate('aaa'), { valid: true, error: null, result: 'aaa' })
     assert.deepEqual(schema.validate('ccc'), { valid: false,
       error:
@@ -237,6 +237,13 @@ describe('helper', function () {
          schema: 'enumSchema' },
       result: 'ccc'
     })
+
+    schema = AJS('enumSchema', {
+      age: { type: AJS.Types.Number, enum: [18, 19, 20] }
+    })
+    assert.deepEqual(schema.validate({
+      age: '18'
+    }), { valid: true, error: null, result: { age: 18 } })
   })
 
   it('.pattern', function () {
