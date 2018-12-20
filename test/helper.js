@@ -391,4 +391,76 @@ describe('helper', function () {
     assert.deepEqual(result.result.commentIds[0] instanceof toObjectId, true)
     assert.deepEqual(result.result.commentIds[1] instanceof toObjectId, true)
   })
+
+  describe("validator's isXxx", function () {
+    it('validator.isEmail', function () {
+      const schema = AJS('validateSchema', {
+        type: 'string',
+        isEmail: true
+      })
+      assert.deepEqual(schema.validate('a@b.com'), { valid: true, error: null, result: 'a@b.com' })
+
+      const numberSchema = AJS('numberSchema', {
+        type: 'number',
+        isEmail: true
+      })
+      assert.deepEqual(numberSchema.validate(1), { valid: false,
+        error:
+         {
+           validator: 'isEmail',
+           actual: 1,
+           expected: { type: 'number', isEmail: true },
+           path: '$',
+           schema: 'numberSchema' },
+        result: 1
+      })
+
+      assert.deepEqual(schema.validate('bbb'), { valid: false,
+        error:
+         {
+           validator: 'isEmail',
+           actual: 'bbb',
+           expected: { type: 'string', isEmail: true },
+           path: '$',
+           schema: 'validateSchema' },
+        result: 'bbb'
+      })
+    })
+
+    it('validator.isIP', function () {
+      const IPV4Schema = AJS('validateSchema', {
+        type: 'string',
+        isIP: [4, true]
+      })
+      assert.deepEqual(IPV4Schema.validate('8.8.8.8'), { valid: true, error: null, result: '8.8.8.8' })
+
+      assert.deepEqual(IPV4Schema.validate('CDCD:910A:2222:5498:8475:1111:3900:2020'), { valid: false,
+        error:
+         {
+           validator: 'isIP',
+           actual: 'CDCD:910A:2222:5498:8475:1111:3900:2020',
+           expected: { type: 'string', isIP: [4, true] },
+           path: '$',
+           schema: 'validateSchema' },
+        result: 'CDCD:910A:2222:5498:8475:1111:3900:2020'
+      })
+
+      const IPV6Schema = AJS('validateSchema', {
+        type: 'string',
+        isIP: [6, true]
+      })
+      assert.deepEqual(IPV6Schema.validate('CDCD:910A:2222:5498:8475:1111:3900:2020'), { valid: true, error: null, result: 'CDCD:910A:2222:5498:8475:1111:3900:2020' })
+
+      assert.deepEqual(IPV6Schema.validate('8.8.8.8'), { valid: false,
+        error:
+         {
+           validator: 'isIP',
+           actual: '8.8.8.8',
+           expected: { type: 'string', isIP: [6, true] },
+           path: '$',
+           schema: 'validateSchema' },
+        result: '8.8.8.8'
+      })
+    })
+  })
 })

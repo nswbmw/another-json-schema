@@ -1,3 +1,4 @@
+const validator = require('validator')
 const toString = Object.prototype.toString
 
 exports.type = function (actual, expected, key, parent) {
@@ -62,3 +63,18 @@ exports.required = function (actual, expected, key, parent) {
 exports.eq = exports.equal = function (actual, expected, key, parent) {
   return actual === expected
 }
+
+/*
+ * validator's `isXxx`
+ */
+Object.keys(validator)
+  .filter(name => !!name.match(/^is/))
+  .forEach(name => {
+    exports[name] = function (actual, expected, key, parent) {
+      if (typeof actual !== 'string') {
+        return false
+      }
+      expected = Array.isArray(expected) ? expected : [expected]
+      return validator[name](actual, ...expected.slice(0, -1)) === expected[expected.length - 1]
+    }
+  })

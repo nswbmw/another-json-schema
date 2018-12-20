@@ -24,7 +24,8 @@ const AJS = require('another-json-schema')
 const userSchema = AJS('userSchema', {
   name: { type: 'string', required: true },
   age: { type: 'number', gte: 18 },
-  gender: { type: 'string', enum: ['male', 'female'], default: 'male' }
+  gender: { type: 'string', enum: ['male', 'female'], default: 'male' },
+  email: { type: 'string', isEmail: true }
 })
 
 // test `required`
@@ -78,6 +79,20 @@ console.log(userSchema.validate({ name: 'nswbmw', age: 17 }))
      path: '$.age',
      schema: 'userSchema' },
   result: { name: 'nswbmw', age: 17 } }
+*/
+
+// test `isEmail`
+console.log(userSchema.validate({ name: 'nswbmw', email: 'myEmail' }))
+/*
+{ valid: false,
+  error:
+   { Error: ($.email: "myEmail") ✖ (isEmail: true)
+     validator: 'isEmail',
+     path: '$.email',
+     actual: 'myEmail',
+     expected: { type: 'string', isEmail: true },
+     schema: 'userSchema' },
+  result: { name: 'nswbmw', email: 'myEmail', gender: 'male' } }
 */
 ```
 
@@ -274,8 +289,8 @@ console.log(postSchema._children.commentIds.validate('lalala'))
 - AJS.Types.Boolean
 - AJS.Types.Mixed
 
-**What's difference between `number` and `Mongolass.Types.Number` ?**
-`number` only check type, `Mongolass.Types.Number` will try to convert value to a number, if failed then throw error.
+**What's difference between `number` and `AJS.Types.Number` ?**
+`number` only check type, `AJS.Types.Number` will try to convert value to a number, if failed then throw error.
 
 ```js
 const AJS = require('/Users/nswbmw/work/GitHub/Node.js/another-json-schema')
@@ -417,6 +432,7 @@ opts:
 - pattern
 - default
 - required
+- all [validator](https://www.npmjs.com/package/validator)'s `isXxx` validators, eg: isEmail. `type` validator must be `string` or `AJS.Types.String`.
 
 ### More examples
 

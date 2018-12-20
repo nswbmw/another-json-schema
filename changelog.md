@@ -1,3 +1,8 @@
+## 3.8.0/2018-12-20
+
+- upgrade deps
+- add validator's all `isXxx`
+
 ## 3.7.0/2018-06-21
 
 - fix: `type` function maybe change value, then override original value
