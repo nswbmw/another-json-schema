@@ -279,6 +279,19 @@ describe('helper', function () {
     }, { default: false }), { valid: true, error: null, result: { name: 'nswbmw' } })
   })
 
+  it('.default with function', function () {
+    let schema = AJS('requiredSchema', {
+      timestamp: { type: AJS.Types.Date, default: Date.now }
+    })
+    assert.deepEqual(schema.validate({
+      timestamp: 1547113058878
+    }), { valid: true, error: null, result: { timestamp: new Date(1547113058878) } })
+
+    const result = schema.validate({}).result
+    assert(!!result.timestamp)
+    assert.deepEqual(typeof result.timestamp, 'object')
+  })
+
   it('.required', function () {
     let schema = AJS('requiredSchema', {
       name: { type: 'string', required: true },

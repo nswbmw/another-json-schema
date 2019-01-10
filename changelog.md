@@ -1,3 +1,7 @@
+## 3.8.1/2018-01-10
+
+- `default` helper support function now
+
 ## 3.8.0/2018-12-20
 
 - upgrade deps

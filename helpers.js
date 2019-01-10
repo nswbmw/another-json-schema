@@ -48,7 +48,9 @@ exports.pattern = function (actual, expected, key, parent) {
 }
 
 exports.default = function (actual, expected, key, parent) {
-  parent[key] = actual != null ? actual : expected
+  parent[key] = actual != null
+    ? actual
+    : (typeof expected === 'function' ? expected.apply(this, arguments) : expected)
   return true
 }
 

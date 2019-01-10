@@ -1,6 +1,6 @@
 {
   "name": "another-json-schema",
-  "version": "3.8.0",
+  "version": "3.8.1",
   "description": "Another JSON Schema, simple & flexible & intuitive.",
   "main": "index.js",
   "scripts": {
@@ -18,7 +18,7 @@
   "license": "MIT",
   "dependencies": {
     "mongodb": "3.1.10",
-    "validator": "10.9.0"
+    "validator": "10.10.0"
   },
   "repository": {
     "type": "git",
@@ -27,7 +27,7 @@
   "devDependencies": {
     "eslint-config-standard": "12.0.0",
     "eslint-plugin-import": "2.14.0",
-    "eslint-plugin-node": "8.0.0",
+    "eslint-plugin-node": "8.0.1",
     "eslint-plugin-promise": "4.0.1",
     "eslint-plugin-standard": "4.0.0",
     "intelli-espower-loader": "1.0.1",
