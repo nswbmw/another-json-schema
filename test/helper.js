@@ -148,6 +148,32 @@ describe('helper', function () {
       result: 'hehe' })
   })
 
+  it('.length', function () {
+    const stringSchema = AJS('stringSchema', { type: 'string', length: 1 })
+    assert.deepEqual(stringSchema.validate('a'), { valid: true, error: null, result: 'a' })
+    assert.deepEqual(stringSchema.validate('hehe'), { valid: false,
+      error:
+       {
+         validator: 'length',
+         path: '$',
+         actual: 'hehe',
+         expected: { type: 'string', length: 1 },
+         schema: 'stringSchema' },
+      result: 'hehe' })
+
+    const stringSchema2 = AJS('stringSchema2', { type: 'string', length: [1, 2] })
+    assert.deepEqual(stringSchema2.validate('a'), { valid: true, error: null, result: 'a' })
+    assert.deepEqual(stringSchema2.validate('hehe'), { valid: false,
+      error:
+       {
+         validator: 'length',
+         path: '$',
+         actual: 'hehe',
+         expected: { type: 'string', length: [1, 2] },
+         schema: 'stringSchema2' },
+      result: 'hehe' })
+  })
+
   it('.gt', function () {
     const schema = AJS('numberSchema', { type: 'number', gt: 0 })
     assert.deepEqual(schema.validate(1), { valid: true, error: null, result: 1 })

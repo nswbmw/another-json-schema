@@ -1,6 +1,6 @@
 {
   "name": "another-json-schema",
-  "version": "3.8.1",
+  "version": "3.8.2",
   "description": "Another JSON Schema, simple & flexible & intuitive.",
   "main": "index.js",
   "scripts": {

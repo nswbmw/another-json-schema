@@ -1,3 +1,7 @@
+## 3.8.2/2018-01-17
+
+- add `.length` helper
+
 ## 3.8.1/2018-01-10
 
 - `default` helper support function now

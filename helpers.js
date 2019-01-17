@@ -9,6 +9,17 @@ exports.type = function (actual, expected, key, parent) {
   return expected === toString.call(actual).match(/^\[object\s(.*)\]$/)[1].toLowerCase()
 }
 
+/*
+ * String
+ */
+exports.length = function (actual, expected, key, parent) {
+  if (Array.isArray(expected)) {
+    const len = actual.length
+    return len >= expected[0] && len <= expected[1]
+  }
+  return actual.length === expected
+}
+
 // return true|false
 /*
  * Number
