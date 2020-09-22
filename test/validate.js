@@ -1,5 +1,5 @@
 const AJS = require('..')
-const assert = require('assert')
+const { deepEqual } = require('./_util')
 
 describe('validate', function () {
   it('error', function () {
@@ -7,7 +7,7 @@ describe('validate', function () {
     try {
       schema.validate(0)
     } catch (e) {
-      assert.equal(e.message, 'No schema assigned, please call .compile(schema)')
+      deepEqual(e.message, 'No schema assigned, please call .compile(schema)')
     }
   })
 
@@ -23,7 +23,7 @@ describe('validate', function () {
       }
     })
 
-    assert.deepEqual(userSchema.validate({
+    deepEqual(userSchema.validate({
       name: 'nswbmw',
       age: 17
     }).error.message, '您未满 18 岁')
@@ -37,7 +37,7 @@ describe('validate', function () {
       gender: { type: 'string', enum: ['male', 'female'] }
     })
 
-    assert.deepEqual(userSchema.validate({
+    deepEqual(userSchema.validate({
       _id: '111111111111111111111111',
       name: 'nswbmw',
       age: 100,
@@ -53,7 +53,7 @@ describe('validate', function () {
          gender: 'male' }
     })
 
-    assert.deepEqual(userSchema.validate({
+    deepEqual(userSchema.validate({
       _id: '111111111111111111111111',
       name: 'nswbmw',
       age: 100,
@@ -76,7 +76,7 @@ describe('validate', function () {
       posts: [{ type: 'string' }]
     })
 
-    assert.deepEqual(userSchema.validate({
+    deepEqual(userSchema.validate({
       posts: '1'
     }), {
       valid: false,
@@ -90,7 +90,7 @@ describe('validate', function () {
       result: { posts: '1' }
     })
 
-    assert.deepEqual(userSchema.validate({
+    deepEqual(userSchema.validate({
       posts: '1'
     }, { ignoreNodeType: true }), {
       valid: true,
@@ -102,7 +102,7 @@ describe('validate', function () {
       posts: { type: 'string' }
     })
 
-    assert.deepEqual(userSchema.validate({
+    deepEqual(userSchema.validate({
       posts: ['1', '2', '3']
     }, { ignoreNodeType: true }), {
       valid: true,
@@ -113,8 +113,8 @@ describe('validate', function () {
 
   it('normal', function () {
     let schema = AJS({ type: 'string' })
-    assert.deepEqual(schema.validate('1'), { valid: true, error: null, result: '1' })
-    assert.deepEqual(schema.validate(1), { valid: false,
+    deepEqual(schema.validate('1'), { valid: true, error: null, result: '1' })
+    deepEqual(schema.validate(1), { valid: false,
       error:
        {
          validator: 'type',
@@ -126,8 +126,8 @@ describe('validate', function () {
     })
 
     schema = AJS([{ type: 'string' }])
-    assert.deepEqual(schema.validate(['1']), { valid: true, error: null, result: ['1'] })
-    assert.deepEqual(schema.validate([2, '1']), { valid: false,
+    deepEqual(schema.validate(['1']), { valid: true, error: null, result: ['1'] })
+    deepEqual(schema.validate([2, '1']), { valid: false,
       error:
        {
          validator: 'type',
@@ -139,8 +139,8 @@ describe('validate', function () {
     })
 
     schema = AJS([AJS({ type: 'string' })])
-    assert.deepEqual(schema.validate(['1']), { valid: true, error: null, result: ['1'] })
-    assert.deepEqual(schema.validate(['1', 2]), { valid: false,
+    deepEqual(schema.validate(['1']), { valid: true, error: null, result: ['1'] })
+    deepEqual(schema.validate(['1', 2]), { valid: false,
       error:
        {
          validator: 'type',
@@ -155,7 +155,7 @@ describe('validate', function () {
       _id: { type: 'string', pattern: /^[0-9a-z]{24}$/ },
       nicknames: [{ type: 'string' }]
     })
-    assert.deepEqual(userSchema._children._id.validate('1'), {
+    deepEqual(userSchema._children._id.validate('1'), {
       valid: false,
       error: {
         validator: 'pattern',
@@ -164,7 +164,7 @@ describe('validate', function () {
         path: '$._id',
         schema: 'userSchema' },
       result: '1' })
-    assert.deepEqual(userSchema.validate({
+    deepEqual(userSchema.validate({
       _id: '111111111111111111111111',
       nicknames: ['nswbmw', 'xiaoxingxing'],
       other: 'blabla'
@@ -180,11 +180,11 @@ describe('validate', function () {
       nicknames: [{ type: 'string' }]
     })
 
-    assert.equal(userSchema.validate({
+    deepEqual(userSchema.validate({
       _id: '111111111111111111111111',
       nicknames: 'nswbmw'
     }).error.message, '($.nicknames[]: "nswbmw") ✖ (type: array)')
-    assert.deepEqual(userSchema.validate({
+    deepEqual(userSchema.validate({
       _id: '111111111111111111111111',
       nicknames: 'nswbmw'
     }), { valid: false,
@@ -202,14 +202,14 @@ describe('validate', function () {
       _id: { type: 'string', pattern: /^[0-9a-z]{24}$/ },
       nicknames: [{ type: 'string' }]
     })
-    assert.equal(userSchema.validate(1).error.message, '($: 1) ✖ (type: object)')
+    deepEqual(userSchema.validate(1).error.message, '($: 1) ✖ (type: object)')
 
     const commentSchema = AJS('commentSchema', {
       _id: { type: 'string', pattern: /^[0-9a-z]{24}$/ },
       content: { type: 'string', required: true }
     })
 
-    assert.deepEqual(commentSchema.validate({
+    deepEqual(commentSchema.validate({
       _id: '111111111111111111111111',
       content: ['haha', 'hehe']
     }), { valid: false,
@@ -272,7 +272,7 @@ describe('validate', function () {
         content: 'bench'
       }]
     }
-    assert.deepEqual(postSchema.validate(post1), {
+    deepEqual(postSchema.validate(post1), {
       valid: true,
       error: null,
       result: {
@@ -349,8 +349,8 @@ describe('validate', function () {
       content: 'lalala',
       comments: 'haha'
     }
-    assert.deepEqual(postSchema.validate(post2).error.message, '($.comments[].user._id: "wrong_id") ✖ (pattern: /^[0-9a-z]{24}$/)')
-    assert.deepEqual(postSchema.validate(post2), {
+    deepEqual(postSchema.validate(post2).error.message, '($.comments[].user._id: "wrong_id") ✖ (pattern: /^[0-9a-z]{24}$/)')
+    deepEqual(postSchema.validate(post2), {
       valid: false,
       error: {
         validator: 'pattern',
@@ -387,7 +387,7 @@ describe('validate', function () {
         }]
       }
     })
-    assert.deepEqual(postSchema.validate(post3), {
+    deepEqual(postSchema.validate(post3), {
       valid: false,
       error:
        {

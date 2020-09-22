@@ -1,12 +1,12 @@
 const AJS = require('..')
-const assert = require('assert')
+const { deepEqual } = require('./_util')
 
 describe('compile', function () {
   it('error: schema type', function () {
     try {
       AJS(111, 222)
     } catch (e) {
-      assert.ok(e.message.match(/Schema must be object or array/))
+      deepEqual(!!e.message.match(/Schema must be object or array/), true)
     }
   })
 
@@ -16,13 +16,13 @@ describe('compile', function () {
         type: null
       })
     } catch (e) {
-      assert.ok(e.message.match(/Schema key "type" is null, Schema is/))
+      deepEqual(!!e.message.match(/Schema key "type" is null, Schema is/), true)
     }
   })
 
   it('leaf', function () {
     const schema1 = AJS({ type: 'string' })
-    assert.deepEqual(schema1, {
+    deepEqual(schema1, {
       _leaf: true,
       _children: { type: 'string' },
       _parent: null,
@@ -31,7 +31,7 @@ describe('compile', function () {
     })
 
     const schema2 = AJS([{ type: 'string' }])
-    assert.deepEqual(schema2, {
+    deepEqual(schema2, {
       _array: true,
       _leaf: true,
       _children: { type: 'string' },
@@ -41,7 +41,7 @@ describe('compile', function () {
     })
 
     const schema3 = AJS('stringSchema', [{ type: 'string' }])
-    assert.deepEqual(schema3, {
+    deepEqual(schema3, {
       _array: true,
       _leaf: true,
       _name: 'stringSchema',
@@ -67,9 +67,9 @@ describe('compile', function () {
     })
 
     try {
-      assert.deepEqual(schema1, schema2)
+      deepEqual(schema1, schema2)
     } catch (e) {
-      assert.equal(e.message, 'Maximum call stack size exceeded')
+      deepEqual(e.message, 'Maximum call stack size exceeded')
     }
 
     schema1 = AJS({
@@ -86,9 +86,9 @@ describe('compile', function () {
     })
 
     try {
-      assert.deepEqual(schema1, schema2)
+      deepEqual(schema1, schema2)
     } catch (e) {
-      assert.equal(e.message, 'Maximum call stack size exceeded')
+      deepEqual(e.message, 'Maximum call stack size exceeded')
     }
 
     schema1 = AJS({
@@ -110,14 +110,14 @@ describe('compile', function () {
       })
     })
     try {
-      assert.deepEqual(schema1, schema2)
+      deepEqual(schema1, schema2)
     } catch (e) {
-      assert.equal(e.message, 'Maximum call stack size exceeded')
+      deepEqual(e.message, 'Maximum call stack size exceeded')
     }
     try {
-      assert.deepEqual(schema1, schema3)
+      deepEqual(schema1, schema3)
     } catch (e) {
-      assert.equal(e.message, 'Maximum call stack size exceeded')
+      deepEqual(e.message, 'Maximum call stack size exceeded')
     }
   })
 
@@ -141,14 +141,14 @@ describe('compile', function () {
       }])
     }])
     try {
-      assert.deepEqual(schema1, schema2)
+      deepEqual(schema1, schema2)
     } catch (e) {
-      assert.equal(e.message, 'Maximum call stack size exceeded')
+      deepEqual(e.message, 'Maximum call stack size exceeded')
     }
     try {
-      assert.deepEqual(schema1, schema3)
+      deepEqual(schema1, schema3)
     } catch (e) {
-      assert.equal(e.message, 'Maximum call stack size exceeded')
+      deepEqual(e.message, 'Maximum call stack size exceeded')
     }
   })
 })
