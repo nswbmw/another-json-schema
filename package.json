@@ -1,6 +1,6 @@
 {
   "name": "another-json-schema",
-  "version": "3.8.3",
+  "version": "3.8.4",
   "description": "Another JSON Schema, simple & flexible & intuitive.",
   "main": "index.js",
   "scripts": {
@@ -17,22 +17,22 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "mongodb": "3.6.2",
-    "validator": "13.1.17"
+    "mongodb": "4.6.0",
+    "validator": "13.7.0"
   },
   "repository": {
     "type": "git",
     "url": "https://github.com/nswbmw/another-json-schema"
   },
   "devDependencies": {
-    "eslint-config-standard": "14.1.1",
-    "eslint-plugin-import": "2.22.0",
+    "eslint-config-standard": "17.0.0",
+    "eslint-plugin-import": "2.26.0",
     "eslint-plugin-node": "11.1.0",
-    "eslint-plugin-promise": "4.2.1",
-    "eslint-plugin-standard": "4.0.1",
-    "intelli-espower-loader": "1.0.1",
+    "eslint-plugin-promise": "6.0.0",
+    "eslint-plugin-standard": "4.1.0",
+    "intelli-espower-loader": "1.1.0",
     "istanbul": "^0.4.5",
-    "mocha": "^8.1.3",
+    "mocha": "^10.0.0",
     "power-assert": "1.6.1"
   }
 }

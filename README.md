@@ -284,6 +284,8 @@ console.log(postSchema._children.commentIds.validate('lalala'))
 - AJS.Types.ObjectId
 - AJS.Types.String
 - AJS.Types.Number
+- AJS.Types.Integer
+- AJS.Types.Double
 - AJS.Types.Date
 - AJS.Types.Buffer
 - AJS.Types.Boolean

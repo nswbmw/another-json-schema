@@ -35,6 +35,28 @@ exports.Number = function Number (actual, key, parent) {
   return true
 }
 
+exports.Integer = function Integer (actual, key, parent) {
+  if (isNaN(parseInt(actual))) {
+    return false
+  }
+  /* istanbul ignore else */
+  if (key != null) {
+    parent[key] = parseInt(actual)
+  }
+  return true
+}
+
+exports.Double = function Double (actual, key, parent) {
+  if (isNaN(parseFloat(actual))) {
+    return false
+  }
+  /* istanbul ignore else */
+  if (key != null) {
+    parent[key] = parseFloat(actual)
+  }
+  return true
+}
+
 exports.Date = function Date (actual, key, parent) {
   const date = new _Date(actual)
   if (date.toString() === 'Invalid Date') {

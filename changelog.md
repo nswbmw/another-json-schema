@@ -1,3 +1,7 @@
+## 3.8.4/2022-05-31
+
+- add: `Integer` & `Double` types
+
 ## 3.8.3/2020-09-15
 
 - update deps

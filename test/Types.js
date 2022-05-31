@@ -5,6 +5,8 @@ const UserSchema = AJS('User', {
   uid: { type: AJS.Types.ObjectId },
   string: { type: AJS.Types.String },
   number: { type: AJS.Types.Number },
+  integer: { type: AJS.Types.Integer },
+  double: { type: AJS.Types.Double },
   date: { type: AJS.Types.Date },
   buffer: { type: AJS.Types.Buffer },
   boolean: { type: AJS.Types.Boolean },
@@ -33,6 +35,24 @@ describe('Types', function () {
     deepEqual(user.result.number, 1.2)
 
     user = UserSchema.validate({ number: 'haha' })
+    deepEqual(user.valid, false)
+  })
+
+  it('Integer', function () {
+    let user = UserSchema.validate({ integer: 1.2 })
+    deepEqual(user.valid, true)
+    deepEqual(user.result.integer, 1)
+
+    user = UserSchema.validate({ integer: 'haha' })
+    deepEqual(user.valid, false)
+  })
+
+  it('Double', function () {
+    let user = UserSchema.validate({ double: 1.2 })
+    deepEqual(user.valid, true)
+    deepEqual(user.result.double, 1.2)
+
+    user = UserSchema.validate({ double: 'haha' })
     deepEqual(user.valid, false)
   })
 
