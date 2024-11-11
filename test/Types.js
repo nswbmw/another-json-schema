@@ -2,7 +2,6 @@ const AJS = require('..')
 const { deepEqual } = require('./_util')
 
 const UserSchema = AJS('User', {
-  uid: { type: AJS.Types.ObjectId },
   string: { type: AJS.Types.String },
   number: { type: AJS.Types.Number },
   integer: { type: AJS.Types.Integer },
@@ -14,15 +13,6 @@ const UserSchema = AJS('User', {
 })
 
 describe('Types', function () {
-  it('ObjectId', function () {
-    let user = UserSchema.validate({ uid: 'xxx' })
-    deepEqual(user.valid, false)
-
-    user = UserSchema.validate({ uid: '111111111111111111111111' })
-    deepEqual(user.valid, true)
-    deepEqual(user.result.uid.toString(), '111111111111111111111111')
-  })
-
   it('String', function () {
     let user = UserSchema.validate({ string: 111 })
     deepEqual(user.valid, true)

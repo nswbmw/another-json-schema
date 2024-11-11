@@ -287,6 +287,62 @@ describe('helper', function () {
     })
   })
 
+  it('.trim', function () {
+    // no trim
+    const schema = AJS('trimSchema', {
+      email: { type: 'string', isEmail: true }
+    })
+    deepEqual(schema.validate({
+      email: 'test@gmail.com'
+    }), { valid: true, error: null, result: { email: 'test@gmail.com' } })
+    deepEqual(schema.validate({ email: 'test@gmail.com ' }), { valid: false,
+      error:
+       {
+         validator: 'isEmail',
+         actual: 'test@gmail.com ',
+         expected: { type: 'string', isEmail: true },
+         path: '$.email',
+         schema: 'trimSchema' },
+      result: { email: 'test@gmail.com ' }
+    })
+
+    // trim: false
+    const schema2 = AJS('trimSchema', {
+      email: { type: 'string', isEmail: true, trim: false }
+    })
+    deepEqual(schema2.validate({
+      email: 'test@gmail.com'
+    }), { valid: true, error: null, result: { email: 'test@gmail.com' } })
+    deepEqual(schema2.validate({ email: 'test@gmail.com ' }), { valid: false,
+      error:
+       {
+         validator: 'isEmail',
+         actual: 'test@gmail.com ',
+         expected: { type: 'string', isEmail: true, trim: false },
+         path: '$.email',
+         schema: 'trimSchema' },
+      result: { email: 'test@gmail.com ' }
+    })
+
+    // trim: true
+    const schema3 = AJS('trimSchema', {
+      email: { type: 'string', trim: true, isEmail: true }
+    })
+    deepEqual(schema3.validate({
+      email: 'test@gmail.com'
+    }), { valid: true, error: null, result: { email: 'test@gmail.com' } })
+    deepEqual(schema3.validate({
+      email: 'test@gmail.com '
+    }), { valid: true, error: null, result: { email: 'test@gmail.com' } })
+
+    const schema4 = AJS('trimSchema', {
+      age: { type: 'number', trim: true }
+    })
+    deepEqual(schema4.validate({
+      age: 18
+    }), { valid: true, error: null, result: { age: 18 } })
+  })
+
   it('.default', function () {
     let schema = AJS('requiredSchema', {
       name: { type: 'string' },
@@ -402,33 +458,6 @@ describe('helper', function () {
          originError: 'not equal aaa' },
       result: 'bbb'
     })
-  })
-
-  it('ObjectId', function () {
-    function ObjectId (actual, key, parent) {
-      if (!actual || !validator.isMongoId(actual.toString())) {
-        return false
-      }
-      parent[key] = toObjectId(actual)
-      return true
-    }
-
-    const postSchema = AJS('postSchema', {
-      commentIds: [{ type: ObjectId }]
-    })
-
-    const user = {
-      commentIds: [
-        '111111111111111111111111',
-        '222222222222222222222222'
-      ]
-    }
-
-    const result = postSchema.validate(user)
-    deepEqual(result.valid, true)
-    deepEqual(result.error, null)
-    deepEqual(result.result.commentIds[0] instanceof toObjectId, true)
-    deepEqual(result.result.commentIds[1] instanceof toObjectId, true)
   })
 
   describe("validator's isXxx", function () {

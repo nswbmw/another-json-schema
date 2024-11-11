@@ -25,7 +25,7 @@ const userSchema = AJS('userSchema', {
   name: { type: 'string', required: true },
   age: { type: 'number', gte: 18 },
   gender: { type: 'string', enum: ['male', 'female'], default: 'male' },
-  email: { type: 'string', isEmail: true }
+  email: { type: 'string', trim: true, isEmail: true }
 })
 
 // test `required`
@@ -90,7 +90,7 @@ console.log(userSchema.validate({ name: 'nswbmw', email: 'myEmail' }))
      validator: 'isEmail',
      path: '$.email',
      actual: 'myEmail',
-     expected: { type: 'string', isEmail: true },
+     expected: { type: 'string', trim: true, isEmail: true },
      schema: 'userSchema' },
   result: { name: 'nswbmw', email: 'myEmail', gender: 'male' } }
 */

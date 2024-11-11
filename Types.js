@@ -1,20 +1,8 @@
 const validator = require('validator')
-const toObjectId = require('mongodb').ObjectId
 
 const _String = String
 const _Date = Date
 const _Buffer = Buffer
-
-exports.ObjectID = exports.ObjectId = function ObjectId (actual, key, parent) {
-  if (!validator.isMongoId(String(actual))) {
-    return false
-  }
-  /* istanbul ignore else */
-  if (key != null) {
-    parent[key] = toObjectId(actual)
-  }
-  return true
-}
 
 exports.String = function String (actual, key, parent) {
   /* istanbul ignore else */

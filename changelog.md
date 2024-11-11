@@ -1,3 +1,9 @@
+## 4.0.0/2024-11-11
+
+- (breaking)rm: `ObjectId` type
+- add: `.trim` helper
+- update deps
+
 ## 3.8.4/2022-05-31
 
 - add: `Integer` & `Double` types

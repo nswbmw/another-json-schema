@@ -181,7 +181,15 @@ function validateLeaf (parent, key, value, opts, ctx) {
 
   function validate (value, key, parent) {
     let valid = true// default passed
-    // first, check default
+
+    // trim
+    if ('trim' in ctx._children) {
+      if (!!ctx._children.trim && (typeof value === 'string')) {
+        value = parent[key] = value.trim()
+      }
+    }
+
+    // check default
     if ('default' in ctx._children) {
       if (opts.default == null || opts.default) {
         helpersFuncs.default.call(ctx, value, ctx._children.default, key, parent)
@@ -190,7 +198,7 @@ function validateLeaf (parent, key, value, opts, ctx) {
       }
     }
 
-    // second, check required
+    // check required
     if (ctx._children.required) {
       if (opts.required == null || opts.required) {
         valid = helpersFuncs.required.call(ctx, value, ctx._children.required, key, parent)
@@ -222,7 +230,7 @@ function validateLeaf (parent, key, value, opts, ctx) {
 
     // then check others
     for (let helper in ctx._children) {
-      if (['type', 'default', 'required', '_customErrorMsg'].indexOf(helper) !== -1 || (opts[helper] != null && !opts[helper])) {
+      if (['type', 'trim', 'default', 'required', '_customErrorMsg'].indexOf(helper) !== -1 || (opts[helper] != null && !opts[helper])) {
         continue
       }
       try {
